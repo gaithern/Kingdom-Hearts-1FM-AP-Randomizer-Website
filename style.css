@@ -1,0 +1,95 @@
+/* style.css (Dark Theme) */
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #e0e0e0; /* Light gray text for dark background */
+    background-color: #121212; /* Dark background */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: #f0f0f0; /* Slightly brighter headings */
+}
+
+h1 {
+    font-size: 3em;
+    font-family: Verdana;
+}
+
+h2 {
+    font-size: 1.8em;
+}
+
+h3 {
+    font-size: 1.4em;
+}
+
+/* Paragraphs and Lists */
+p, ul, ol {
+    margin-bottom: 1em;
+}
+
+/* Container for Centering */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Rounded Corners */
+button, img {
+    border-radius: 5px;
+}
+
+/* Box Shadow */
+.card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Adjust shadow for dark theme */
+    padding: 20px;
+    background-color: #1e1e1e; /* Slightly lighter dark card background */
+    border-radius: 5px;
+}
+
+/* Links */
+a {
+    color: #89cff0; /* Light blue links */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* List Styling */
+ul, ol {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* Optional: Add spacing for form elements*/
+input, textarea, select, button {
+    margin-bottom: 0.75em;
+    padding: 0.5em;
+    border: 1px solid #333; /* Darker border */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #2a2a2a; /* Darker input background */
+    color: #e0e0e0;
+}
+
+button {
+    background-color: #89cff0; /* Light blue button */
+    color: #121212; /* Dark text on button */
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #66b3ff; /* Slightly darker blue on hover */
+}
