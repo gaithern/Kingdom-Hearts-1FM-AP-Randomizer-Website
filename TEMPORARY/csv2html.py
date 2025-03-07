@@ -16,10 +16,9 @@ def main():
 		f.write(html_output)
 
 def gen_table(data):
-	table = "          <tbody>\n"
+	table = ""
 	for row in data:
 		table += gen_row(row)
-	table += "          </tbody>"
 	return table
 
 def gen_row(row):
@@ -34,7 +33,7 @@ def gen_row(row):
 	html_row += f'              <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{AP_Name}</td>\n'
 	html_row += f'              <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">{area}</td>\n'
 	html_row += f'              <td style="border: 1px solid #ddd; padding: 8px; text-align: left;">PLACEHOLDER: {action}</td>\n'
-	html_row += f'              <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><img src="./images/locations/{world}/{area}.png" alt="{AP_Name}" style="max-width: 640px; max-height: 360px;"></td>\n'
+	html_row += f'              <td style="border: 1px solid #ddd; padding: 8px; text-align: left;"><img src="./images/locations/{world}/{AP_Name}.png" alt="{AP_Name}" style="max-width: 640px; max-height: 360px;"></td>\n'
 	html_row += "            </tr>\n"
 
 	return html_row
