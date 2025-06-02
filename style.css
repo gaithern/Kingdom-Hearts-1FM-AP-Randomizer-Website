@@ -43,6 +43,10 @@ p, ul, ol {
     padding: 20px;
 }
 
+summary {
+    font-size: 25px;
+}
+
 /* Rounded Corners */
 button, img {
     border-radius: 5px;
@@ -84,7 +88,7 @@ input, textarea, select, button {
 }
 
 button {
-    background-color: #89cff0; /* Light blue button */
+    background-color: #FFD580; /* Light blue button */
     color: #121212; /* Dark text on button */
     border: none;
     cursor: pointer;
