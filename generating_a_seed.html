@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Generating a Seed</title>
+    <title>Creating Settings</title>
     <link rel="icon" type="image/x-icon" href="./images/icon.png">
     <link rel="stylesheet" href="style.css">
 </head>
+
     <body>
         <!-- Make dark mode -->
         <meta name    = "color-scheme" content = "light dark"/>
@@ -22,17 +23,15 @@
                         <tr>
                             <h1>Generating a Seed</h1>
                         </tr>
-                        <tr>
-                            <td><a href="index.html">Home</a></td>
-                            <td>|</td>
-                            <td><a href="setup_guide.html">Set up guide</a></td>
-                            <td>|</td>
-                            <td><a href="locations_guide.html">Locations Guide</a></td>
-                            <td>|</td>
-                            <td><a href="discord_links.html">Discord</a></td>
-                            <td>|</td>
-                            <td><a href="credits.html">Credits</a></td>
-                        </tr>
+                        <td><a href="setup_guide.html">Set up guide</a></td>
+                        <td>|</td>
+                        <td><a href="generate_a_seed.html">Generate a Seed</a></td>
+                        <td>|</td>
+                        <td><a href="locations_guide.html">Locations Guide</a></td>
+                        <td>|</td>
+                        <td><a href="discord_links.html">Discord</a></td>
+                        <td>|</td>
+                        <td><a href="credits.html">Credits</a></td>
                     </table>
                 </td>
             </tr>
@@ -43,8 +42,6 @@
                 <tr>
                     <td><a href="software_setup.html">Software Setup</a></td>
                     <td>|</td>
-                    <td><a href="creating_settings.html">Creating Settings</a></td>
-                    <td>|</td>
                     <td><a href="generating_a_seed.html">Generating a Seed</a></td>
                     <td>|</td>
                     <td><a href="generating_the_mod_zip.html">Generating the Mod Zip</a></td>
@@ -54,31 +51,20 @@
             </table>
         </p>
         <p>
-            <li>In your KHFM Randomizer Software folder, find "seed_generator.exe" and open it.</li>
-            <li>Once open, you'll find the following window prompting you to point out your settings file (if you don't have a settings file, read <a href="creating_settings.html">Creating Settings</a>) and your Archipelago installation folder.</li>
-            <p><img src="./images/seed_generator.png"></p>
-            <li>Choose your Archipelago installation directory. Usually this is "C:\\ProgramData\Archipelago".</li>
-            <p><img src="./images/archipelago_folder.png"></p>
-            <li>Choose your settings file, usually inside the "/Settings/" folder.</li>
-            <p><img src="./images/player_yaml.png"></p>
-            <li>You're also prompted to decide whether to replace the "apworld", which is the file which controls how Archipelago knows to generate KH1 seeds.</li>
-            <li>You can use this to ensure that your installed KH1 "apworld" matches the one your KHFM Randomizer Software version is expecting. If you aren't sure, leave this as "Yes".</li>
-            <li>Click "Start".</li>
-            <li>After some time, you should see a window like the following:</li>
-            <p><img src="./images/seed_generator_finish.png"></p>
-            <li>Additionally, you should see a file in the "/Files/" folder called "AP_<seed_value>.zip". This is your newly generated seed.</li>
-            <p><img src="./images/ap_seed.png"></p>
-            <li>Extract this zip file. I usually extract it to a folder with the same name.</li>
-            <p><img src="./images/extracted_ap_seed.png"></p>
-            <li>Inside you'll find the following:</li>
-            <ul style="padding-left:50px">
-                <li>A ".archipelago" file which will open a server locally if you chose to have remote items.</li>
-                <li>A ".txt" file containing the spoiler log for the generated seed.</li>
-                <li>A ".zip" file for each player containing the necessary json data for generating that player's mod in OpenKH, which is used during "Generating your mod zip".</li>
-            </ul>
-            <p><img src="./images/seed_files.png"></p>
+            <li>Navigate to the <a href="generate_a_seed.html">seed generation page</a></li>
+            <li>Expand the categories found there to adjust your desired settings.</li>
+            <li>When you have adjusted the settings to your liking, click "Generate Settings File".</li>
+            <p><img src="./images/generate_settings_file_button.png" border="1"></p>
+            <li>This will prompt you to save your settings file.  This file is what is used to generate seeds with those settings.</li>
+            <li>At the bottom of the page, upload your settings file and click "Generate Seed"</li>
+            <p><img src="./images/upload_and_generate.png" border="1"></p>
+            <li>This will prompt you to download your seed zip, which is unique to that seed and used in the next step, <a href="generating_the_mod_zip.html">Generating the mod zip</a>
+            <li>You'll also see a seed link appear.  If you plan on playing offline, and you set your "Remote Items" settings to "off", you can ignore this link.
+            <li>Otherwise, you can use this link to host a server on the Archipelago website to connect to in order to use remote items.</br>
+            <p><img src="./images/successful_generation.png" border="1"></p>
         </p>
         
         <a href="generating_the_mod_zip.html">Generating the Mod Zip</a>
+        
     </body>
 </html>
