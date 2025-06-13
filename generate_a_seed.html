@@ -1066,19 +1066,25 @@
                 </tr>
                 <tr>
                     <td>
-                        Advanced Logic
+                        Logic Difficulty
                     </td>
                     <td>
-                        <select name="Advanced Logic" id="Advanced Logic" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
-                            <option value="Yes">Yes</option>
-                            <option selected value="No">No</option>
+                        <select name="Logic Difficulty" id="Logic Difficulty" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                            <option value="Beginner">Beginner</option>
+                            <option selected value="Normal">Normal</option>
+                            <option value="Proud">Proud</option>
+                            <option value="Minimal">Minimal</option>
                         </select>
                     </td>
                     <td>
-                        <output for="Advanced Logic">No</output>
+                        <output for="Logic Difficulty">Normal</output>
                     </td>
                     <td>
-                        Determines if the player is expected to do advanced tricks to reach certain locations.
+                        Determines what the randomizer logic may expect you to do to reach certain locations.<br><br>
+                        Beginner: Logic only expects what would be the natural solution in vanilla gameplay or similar, as well as a guarantee of tools for boss fights.<br><br>
+                        Normal: Logic expects some clever use of abilities, exploration of options, and competent combat ability; generally does not require advanced knowledge.<br><br>
+                        Proud: Logic expects advanced knowledge of tricks and obscure interactions, such as using Combo Master, Dumbo, and other unusual methods to reach locations.<br><br>
+                        Minimal: Logic expects the bare minimum to get to locations; may require extensive grinding, beating fights with no tools, and performing very difficult or tedious tricks.
                     </td>
                 </tr>
                 <tr>
@@ -1487,7 +1493,7 @@
             data = data + "  randomize_puppies: " + document.getElementById("Randomize Puppies").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
             data = data + "  puppy_value: " + document.getElementById("Puppy Value").value.toString() + "\r\n";
             data = data + "  interact_in_battle: " + document.getElementById("Interact in Battle").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
-            data = data + "  advanced_logic: " + document.getElementById("Advanced Logic").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
+            data = data + "  logic_difficulty: " + document.getElementById("Logic Difficulty").value.toLowerCase().replace(/ /g, "_") + "\r\n";
             data = data + "  extra_shared_abilities: " + document.getElementById("Extra Shared Abilities").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
             data = data + "  exp_zero_in_pool: " + document.getElementById("EXP Zero in Pool").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
             data = data + "  randomize_party_member_starting_accessories: " + document.getElementById("Randomize Party Member Starting Accessories").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
