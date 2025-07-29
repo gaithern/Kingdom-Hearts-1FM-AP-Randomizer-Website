@@ -1049,6 +1049,48 @@
                 </tr>
                 <tr>
                     <td>
+                        Stacking World Items
+                    </td>
+                    <td>
+                        <select name="Stacking World Items" id="Stacking World Items" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                            <option selected value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+                    <td>
+                        <output for="Stacking World Items">Yes</output>
+                    </td>
+                    <td>
+                        Determines if world key items should be replaced with additional world items in the pool.<br><br>
+                        Collecting multiple of a world item grants you that world's key item.<br><br>
+                        If on, Halloween Town Key Item Bundle is forced on.<br><br>
+                        WL: Footprints<br>
+                        OC: Entry Pass<br>
+                        DJ: Slides<br>
+                        AL: Crystal Trident<br>
+                        HT: Forget-Me-Not and Jack-In-The-Box<br>
+                        HB: Theon Vol. 6
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Halloween Town Key Item Bundle
+                    </td>
+                    <td>
+                        <select name="Halloween Town Key Item Bundle" id="Halloween Town Key Item Bundle" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                            <option selected value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </td>
+                    <td>
+                        <output for="Halloween Town Key Item Bundle">Yes</output>
+                    </td>
+                    <td>
+                        Determines if collecting Forget-Me-Not automatically grants the player Jack-In-The-Box.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         Interact in Battle
                     </td>
                     <td>
@@ -1520,6 +1562,8 @@
             data = data + "  randomize_ap_costs: " + document.getElementById("Randomize AP Costs").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
             data = data + "  max_ap_cost: " + document.getElementById("Max AP Cost").value.toString() + "\r\n";
             data = data + "  min_ap_cost: " + document.getElementById("Min AP Cost").value.toString() + "\r\n";
+            data = data + "  stacking_world_items: " + document.getElementById("Stacking World Items").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
+            data = data + "  halloween_town_key_item_bundle: " + document.getElementById("Halloween Town Key Item Bundle").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
             
             const filename = "settings.yaml";
             const type = "text/plain";
