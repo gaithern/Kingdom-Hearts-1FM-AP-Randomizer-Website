@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multiworld Guide</title>
+    <link rel="icon" type="image/x-icon" href="./images/icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+    <body> 
+        <div class="container">
+            <!-- Make dark mode -->
+            <meta name    = "color-scheme" content = "light dark"/>
+            
+            <!-- Header start -->
+            <table class="header-table">
+                <tr>
+                    <td style="width:120px; text-align:left;">
+                        <a href="index.html">
+                            <img src="./images/icon.png" alt="KH1FM Logo" class="kh-icon">
+                        </a>
+                    </td>
+                    <td style="text-align:center;">
+                        <h1>Kingdom Hearts Archipelago Randomizer</h1>
+                        <h2>Multiworld Guide</h2>
+                    </td>
+                    <td style="width:110px; text-align:right;">
+                        <a href="https://archipelago.gg/">
+                            <img src="./images/ap-icon.png" alt="AP Logo" class="ap-icon">
+                        </a>
+                    </td>
+                </tr>
+            </table>
+            <!-- Header end -->
+            
+            <!-- Banner links start -->
+            <table class="banner-links-table">
+                <tr>
+                    <td class="dropdown">
+                        <a href="setup_guide.html">Setup Guide</a>
+                        <div class="dropdown-content">
+                            <a href="software_setup.html">    Software setup     </a>
+                            <a href="generating_a_seed.html"> Generating a seed  </a>
+                            <a href="generating_the_mod.html">Generating the mod </a>
+                            <a href="installing_the_mod.html">Installing the mod </a>
+                            <a href="multiworld_guide.html">Multiworld guide</a>
+                        </div>
+                    </td>
+                    <td><a href="generate_a_seed.html" style="font-weight:bold;">Generate a Seed</a></td>
+                    <td class="dropdown">
+                        <a href="locations_guide.html">Locations Guide</a>
+                        <div class="dropdown-content">
+                            <a href="traverse_town.html">    Traverse Town    </a>
+                            <a href="100_acre_wood.html">    100 Acre Wood    </a>
+                            <a href="destiny_islands.html">  Destiny Islands  </a>
+                            <a href="wonderland.html">       Wonderland       </a>
+                            <a href="olympus_coliseum.html"> Olympus Coliseum </a>
+                            <a href="deep_jungle.html">      Deep Jungle      </a>
+                            <a href="agrabah.html">          Agrabah          </a>
+                            <a href="monstro.html">          Monstro          </a>
+                            <a href="halloween_town.html">   Halloween Town   </a>
+                            <a href="atlantica.html">        Atlantica        </a>
+                            <a href="neverland.html">        Neverland        </a>
+                            <a href="hollow_bastion.html">   Hollow Bastion   </a>
+                            <a href="end_of_the_world.html"> End of the World </a>
+                        </div>
+                    </td>
+                    <td><a href="discord_links.html"   style="font-weight:bold;">Discord        </a></td>
+                    <td><a href="credits.html"         style="font-weight:bold;">Credits        </a></td>
+                </tr>
+            </table>
+            <!-- Banner links end -->
+            
+            <p><br><br>
+                <h2>Why are these steps necessary?  Can't I use archipelago.gg to generate?</h2>
+                <li>Generating a multiworld game with the latest "kh1.apworld" must be done locally for now, until the changes are accepted and migrated to the Archipelago main website</li>
+                <li>Whoever is generating the multiworld game must install the latest "kh1.apworld" in order for generation to take the updates/changes into account
+                <li>Generating games directly on archipelago.gg will generate with the old apworld, and thus will be out of date</li>
+                <li>Creating YAMLs (settings files) on archipelago.gg will create a file only compatible with the old AP world, and thus will be out of date</li>
+                <li>Hosting <em>locally</em> generated multiworld games on archipelago.gg works like normal (and is encouraged!)
+                
+                <h2>Installing the new AP world</h2>
+                <li><a href="https://archipelago.gg/tutorial/">Install Archipelago</a> if you haven't already done so</li>
+                <li>Navigate to where Archipelago is installed for you</li>
+                <li>You should see a folder called "/lib/"</li>
+                <p><img src="./images/lib_folder.png" border="1"></p>
+                <li>You should see a folder called "/lib/"</li>
+                <li>Navigate into "/lib/worlds/".  You should see a file called "kh1.apworld".  Back it up somewhere and delete it."</li>
+                <p><img src="./images/delete_kh1_apworld.png" border="1"></p>
+                <li><a href="https://github.com/gaithernOrg/ArchipelagoKH1FM/releases/latest">Download the latest beta "kh1.apworld"</a> and place it in that same location where the old "kh1.apworld" was.</li>
+                
+                <h2>Generating a multiworld game</h2>
+                <li>Ensure you have the latest version of "kh1.apworld" installed using the steps above</li>
+                <li>Gather all players settings files into your "/Players/" folder</li>
+                <ul style="padding-left:50px">
+                    <li>Need an updated KH1 settings file?  You can generate one <a href"generating_a_seed.html">here</a></li>
+                </ul>
+                <p><img src="./images/yamls_gathered.png" border="1"></p>
+                <li>Run "ArchipelagoGenerate.exe"</li>
+                <p><img src="./images/run_generate.png" border="1"></p>
+                <li>After a short wait, you should see a new file in your "output" folder</li>
+                <p><img src="./images/output_file.png" border="1"></p>
+                <li>Navigate to <a href="https://archipelago.gg/uploads">https://archipelago.gg/uploads/</a> and upload the file in your output folder</li>
+                <p><img src="./images/host_game_upload.png" border="1"></p>
+                <li>You should be redirected to Seed Info page.  Click "Create New Room"</li>
+                <p><img src="./images/create_new_room.png" border="1"></p>
+                <li>You should be redirected to a new room page.  This will contain a link to download the seed zip for the KH1 players, all the information they need to connect, and all the files/info for other players</li>
+                <p><img src="./images/new_room.png" border="1"></p>
+                
+                <h2>Connecting to the multiworld server</h2>
+                <li>KH1 players should begin by download their seed zip.  This is either provided by their host, or they may click the "Download Patch File..." link associated with their slot in their game.</li>
+                <li>Using that downloaded seed zip, generate your mod for OpenKH using the same instructions as the <a href="generating_the_mod.html">"Generating the mod"</a> step in the <a href="setup_guide.html">Setup Guide</a></li>
+                <li>Install your mod using the same instructions as the <a href="install_the_mod.html">"Installing the mod"</a> step in the <a href="setup_guide.html">Setup Guide</a></li>
+                <li>Open your Archipelago Launcher, which can be found in your start menu or by navigating back to your Archipelago installation folder</li>
+                <p><img src="./images/archipelago_launcher.png" border="1"></p>
+                <li>In your Archipelago Launcher, search KH1.  If your apworld is correctly updated, you'll see a blue heart logo.  If not, please reinstall the apworld using the steps above.  Click "Open".</li>
+                <p><img src="./images/search_kh1.png" border="1"></p>
+                <li>At the top of your client window, type in the server/port associated with your hosted game and click "Connect"</li>
+                <p><img src="./images/type_in_info.png" border="1"></p>
+                <li>You'll be prompted to enter the slot name associated with your slot.  In our example, its "Player2".  Type this in the bottom and press enter.</li>
+                <p><img src="./images/type_slot_name.png" border="1"></p>
+                <li>You should be greeted with the following messages.  You should now be able to open your modded KH1 game via OpenKH and play!</li>
+                <p><img src="./images/connected.png" border="1"></p>
+                
+                <h3>Having trouble getting set up?  Feel free to join the <a href="discord_links.html">KH1 AP Discord</a> and reach out for help.</h3>
+            </p>
+        </div>
+    </body>
+</html>
