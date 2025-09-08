@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kingdom Hearts Archipelago Randomizer</title>
+    <title>Generating the Mod</title>
     <link rel="icon" type="image/x-icon" href="./images/icon.png">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -20,7 +20,7 @@
                     </td>
                     <td style="text-align:center;">
                         <h1>Kingdom Hearts Archipelago Randomizer</h1>
-                        <h2>Home</h2>
+                        <h2>Generating the mod</h2>
                     </td>
                     <td style="width:110px; text-align:right;">
                         <a href="https://archipelago.gg/">
@@ -68,32 +68,22 @@
                 </tr>
             </table>
             <!-- Banner links end -->
-            
-            <p><br><br>
-                <h3>Are you here after trying out Kingdom Hearts 1 in Archipelago and are looking to update?  Check out this <a href="multiworld_guide.html">Multiworld guide</a>.</h3><br><br>
-                            This is a branch of the existing randomizer that implements a lot of new features including:<br>
-                <li>Worlds, spells, trinities, summons, and stat ups are all items and thus can be placed anywhere</li>
-                <li>Many checks that were previously un-randomizable or were only shuffled are now fully randomized, including:</li>
-                <ul style="padding-left:50px">
-                    <li>Atlantica clams</li>
-                    <li>Static item events (Crystal Trident, Forget-Me-Not, Postcards, etc)</li>
-                    <li>All dalmatian rewards</li>
-                    <li>All Geppetto and Pinocchio rewards</li>
-                    <li>All synthesis recipes</li>
-                    <li>Map prizes (Trinities that only drop item bubbles, Wonderland chairs and flowers, etc)</li>
-                </ul>
-                <li>Fully GUI based settings/seed/mod zip generation with full OpenKH integration.</li>
-                <li>Recent additions of original randomizer features like Destiny Islands finish are now here!</li>
-                <li>Options for keyblade stat randomization or full shuffle, including hidden stats like crit rate, crit str bonus, and recoil, fully displayed in the weapon description.</li>
-                <li>Randomized cups with options to exclude no cups, all cups, or only Hades cup</li>
-                <li>Addition of Final Rest Door Key, an item which makes the door in Final Rest appear</li>
-                <li>Addition of Lucky Emblems, with settings to decide how many unlock End of the World and the Final Rest Door Key</li>
-                <li>Tons of works stabilizing various crashes, such as revisiting incomplete worlds after Riku Ansem, warping out of worlds at times that would normally cause issues, sequence break soft locks, etc</li>
-                <li>Option to shorten the final fights - teleporting Sora to the final cutscene after defeating Ansem 1 > Darkside > Ansem 2</li>
-                <li>EXP multiplier options which change how much exp is needed to level instead of how many is acquired (making tech point farming a bit more viable)</li>
-                <li>Full Archipelago support for multiworld randomizers</li><br><br>
-                Need help getting started? Check out the <a href="setup_guide.html">set up guide</a><br><br>
-            </p>
-        </div>
-    </body>
+        
+        <p>
+            <li>In your KHFM Randomizer Software folder, find "mod_generator.exe" and open it.</li>
+            <li>You should see the following screen prompting you for the seed zip and your OpenKH KH1 extracted data path.</li>
+            <p><img src="./images/mod_generator.png"></p>
+            <li>Point out your seed zip from generation.</li>
+            <p><img src="./images/seed_zip.png"></p>
+            <li>Point out your KH1 extracted data path. Usually this is a folder named "kh1" in your OpenKH path inside the "data" folder:</li>
+            <p><img src="./images/kh1_extracted_data_path.png"></p>
+            <li>After clicking "Start", you should see the following window, as well as some text output that should describe the mod creation process.</li>
+            <p><img src="./images/mod_generator_complete.png"></p>
+            <li>Once complete, find your new mod zip in your KHFM Randomizer Software folder under "/Output/".</li>
+            <p><img src="./images/mod_zip.png"></p>
+        </p>
+        
+        <a href="installing_the_mod.html">Next Step: Installing the Mod</a>
+        
+    </div> </body>
 </html>
