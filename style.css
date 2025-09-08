@@ -9,6 +9,8 @@ body {
     background-color: #121212; /* Dark background */
     margin: 0;
     padding: 20px;
+    background: url("images/bg.png") no-repeat center center fixed;
+    background-size: cover;
 }
 
 /* Headings */
@@ -38,9 +40,18 @@ p, ul, ol {
 
 /* Container for Centering */
 .container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 1600px;    /* keeps text readable */
+    margin: 0 auto;       /* centers horizontally */
     padding: 20px;
+    text-align: left;   /* centers inline elements */
+}
+.container table {
+    margin: 0 auto;       /* centers your existing tables */
+}
+.container p, 
+.container ul, 
+.container li {
+    text-align: left;     /* keeps feature list easy to read */
 }
 
 summary {
@@ -96,4 +107,81 @@ button {
 
 button:hover {
     background-color: #66b3ff; /* Slightly darker blue on hover */
+}
+
+.kh-icon {
+    height: 120px;   /* force same height */
+    width: auto;     /* keep proportions */
+    vertical-align: middle;
+    margin-right: 15px;  /* space to the right of the icon */
+}
+
+.ap-icon {
+    height: 110px;   /* force same height */
+    width: auto;     /* keep proportions */
+    vertical-align: middle;
+    margin-left: 15px;   /* space to the left of the icon */
+}
+
+.header-table{
+    width:1000px;
+    table-layout:fixed;
+}
+
+.banner-links-table {
+    width: 1000px;
+    table-layout: fixed;
+    border-collapse: collapse; /* merge borders between cells */
+    border: 2px solid #ffffff; /* outer table border */
+}
+
+.banner-links-table td {
+    border: 1px solid #ffffff; /* border for each cell */
+    text-align: center;         /* center the links */
+    padding: 10px;              /* spacing inside cells */
+    background: rgba(0, 0, 0, 0.3); /* subtle background for each cell */
+    transition: background 0.3s, transform 0.2s; /* smooth hover effect */
+}
+
+.banner-links-table td a {
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Hover effect for links/cells */
+.banner-links-table td:hover {
+    transform: scale(1.05); /* slight grow effect */
+}
+
+/* Dropdown styles */
+.dropdown-content {
+    display: none; /* hidden by default */
+    position: absolute;
+    top: 100%; /* directly below the parent td */
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.95); /* mostly opaque background */
+    min-width: 160px;
+    z-index: 1;
+    border-radius: 4px;
+    padding: 4px 0;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 8px 12px;
+    text-align: left;
+    color: #ffffff;
+    border: 1px solid #ffffff; /* border around each option */
+    margin: 2px 4px; /* small spacing to separate borders */
+    border-radius: 3px;
+}
+
+.dropdown-content a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
 }
