@@ -1016,6 +1016,121 @@
                     </table>
                 </details><br>
                 <details>
+                    <summary>Spell MP Costs</summary> <br>
+                    <table class="settings_generator_table">
+                        <tr>
+                            <th>
+                                Setting
+                            </th>
+                            <th>
+                                Input
+                            </th>
+                            <th>
+                                Selected Value
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Randomize Spell MP Costs
+                            </td>
+                            <td>
+                                <select name="Randomize Spell MP Costs" id="Randomize Spell MP Costs" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option selected value="Off">Off</option>
+                                    <option value="Randomize">Randomize</option>
+                                    <option value="Shuffle">Shuffle</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Randomize Spell MP Costs">Off</output>
+                            </td>
+                            <td>
+                                Determines if spell's MP costs are changed.<br><br>
+                                Off: No randomization.<br><br>
+                                Randomize: Spell MP costs will be randomized to the specified max and min.<br><br>
+                                Shuffle: Spell MP costs will be shuffled amongst themselves.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Spell MP Cost Min
+                            </td>
+                            <td>
+                                <select name="Spell MP Cost Min" id="Spell MP Cost Min" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option selected value="Half Pip">Half Pip</option>
+                                    <option value="Pip">Pip</option>
+                                    <option value="1 MP">1 MP</option>
+                                    <option value="2 MP">2 MP</option>
+                                    <option value="3 MP">3 MP</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Spell MP Cost Min">Half Pip</output>
+                            </td>
+                            <td>
+                                If Spell MP costs are set to "Randomize", determines the min MP cost a spell can have.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Spell MP Cost Max
+                            </td>
+                            <td>
+                                <select name="Spell MP Cost Max" id="Spell MP Cost Max" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option value="Half Pip">Half Pip</option>
+                                    <option value="Pip">Pip</option>
+                                    <option value="1 MP">1 MP</option>
+                                    <option value="2 MP">2 MP</option>
+                                    <option selected value="3 MP">3 MP</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Spell MP Cost Max">3 MP</output>
+                            </td>
+                            <td>
+                                If Spell MP costs are set to "Randomize", determines the max MP cost a spell can have.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Individual Spell Level Costs
+                            </td>
+                            <td>
+                                <select name="Individual Spell Level Costs" id="Individual Spell Level Costs" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option selected value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Individual Spell Level Costs">Yes</output>
+                            </td>
+                            <td>
+                                If randomizing or shuffling spell MP costs, each indiviudal level of a spell (for example Fire vs Fira vs Firaga).<br><br>
+                                can have different MP costs.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Scaling Spell Potency
+                            </td>
+                            <td>
+                                <select name="Scaling Spell Potency" id="Scaling Spell Potency" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option selected value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Scaling Spell Potency">Yes</output>
+                            </td>
+                            <td>
+                                If randomizing or shuffling spell MP costs, each spell will have its effectiveness scaled relative to its new cost.
+                            </td>
+                        </tr>
+                    </table>
+                </details><br>
+                <details>
                     <summary>Misc</summary> <br>
                     <table class="settings_generator_table">
                         <tr>
@@ -1595,6 +1710,11 @@
                     data = data + "  min_ap_cost: " + document.getElementById("Min AP Cost").value.toString() + "\r\n";
                     data = data + "  stacking_world_items: " + document.getElementById("Stacking World Items").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     data = data + "  halloween_town_key_item_bundle: " + document.getElementById("Halloween Town Key Item Bundle").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
+                    data = data + "  randomize_spell_mp_costs: " + document.getElementById("Randomize Spell MP Costs").value.toLowerCase().replace(/ /g, "_") + "\r\n";
+                    data = data + "  spell_mp_cost_min: " + document.getElementById("Spell MP Cost Min").value.toLowerCase().replace(/ /g, "_") + "\r\n";
+                    data = data + "  spell_mp_cost_max: " + document.getElementById("Spell MP Cost Max").value.toLowerCase().replace(/ /g, "_") + "\r\n";
+                    data = data + "  individual_spell_level_costs: " + document.getElementById("Individual Spell Level Costs").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
+                    data = data + "  scaling_spell_potency: " + document.getElementById("Scaling Spell Potency").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     
                     const filename = "settings.yaml";
                     const type = "text/plain";
