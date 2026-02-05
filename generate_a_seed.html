@@ -1130,6 +1130,60 @@
                     </table>
                 </details><br>
                 <details>
+                    <summary>Accessories</summary> <br>
+                    <table class="settings_generator_table">
+                        <tr>
+                            <th>
+                                Setting
+                            </th>
+                            <th>
+                                Input
+                            </th>
+                            <th>
+                                Selected Value
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                        </tr>
+                        <tr>
+                            <td>
+                                Accessory Augments
+                            </td>
+                            <td>
+                                <select name="Accessory Augments" id="Accessory Augments" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option value="Yes">Yes</option>
+                                    <option selected value="No">No</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Accessory Augments">No</output>
+                            </td>
+                            <td>
+                                    Accessories are assigned special effects in addition to their normal effects.<br><br>
+                                    These can be either positive or negative.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Augment Abilities from Pool
+                            </td>
+                            <td>
+                                <select name="Augment Abilities from Pool" id="Augment Abilities from Pool" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
+                                    <option selected value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </td>
+                            <td>
+                                <output for="Augment Abilities from Pool">Yes</output>
+                            </td>
+                            <td>
+                                    If accessory augments is on, if an accessory's augment is assigned an ability, that ability can only be found on that accessory.
+                            </td>
+                        </tr>
+                    </table>
+                </details><br>
+                <details>
                     <summary>Misc</summary> <br>
                     <table class="settings_generator_table">
                         <tr>
@@ -1416,24 +1470,6 @@
                             </td>
                             <td>
                                 Determines if the player should be warped to the credits after defeating Ansem 1 > Darkside > Ansem 2 in Homecoming.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Accessory Augments
-                            </td>
-                            <td>
-                                <select name="Accessory Augments" id="Accessory Augments" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
-                                    <option value="Yes">Yes</option>
-                                    <option selected value="No">No</option>
-                                </select>
-                            </td>
-                            <td>
-                                <output for="Accessory Augments">No</output>
-                            </td>
-                            <td>
-                                    Accessories are assigned special effects in addition to their normal effects.<br><br>
-                                    These can be either positive or negative.
                             </td>
                         </tr>
                         <tr>
@@ -1733,6 +1769,7 @@
                     data = data + "  individual_spell_level_costs: " + document.getElementById("Individual Spell Level Costs").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     data = data + "  scaling_spell_potency: " + document.getElementById("Scaling Spell Potency").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     data = data + "  accessory_augments: " + document.getElementById("Accessory Augments").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
+                    data = data + "  augment_abilities_from_pool: " + document.getElementById("Augment Abilities from Pool").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     
                     const filename = "settings.yaml";
                     const type = "text/plain";
@@ -1807,7 +1844,7 @@
                             const url = window.URL.createObjectURL(blob);
                             const a = document.createElement('a');
                             a.href = url;
-                            a.download = `seed.zip`; // Create a filename for download
+                            a.download = `patch.kh1rpatch`; // Create a filename for download
                             document.body.appendChild(a);
                             a.click();
                             document.body.removeChild(a);
