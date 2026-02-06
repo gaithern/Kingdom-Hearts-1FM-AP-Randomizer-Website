@@ -1165,23 +1165,6 @@
                                     These can be either positive or negative.
                             </td>
                         </tr>
-                        <tr>
-                            <td>
-                                Augment Abilities from Pool
-                            </td>
-                            <td>
-                                <select name="Augment Abilities from Pool" id="Augment Abilities from Pool" oninput="this.parentElement.nextElementSibling.querySelector('output').value = this.value" required>
-                                    <option selected value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
-                            </td>
-                            <td>
-                                <output for="Augment Abilities from Pool">Yes</output>
-                            </td>
-                            <td>
-                                    If accessory augments is on, if an accessory's augment is assigned an ability, that ability can only be found on that accessory.
-                            </td>
-                        </tr>
                     </table>
                 </details><br>
                 <details>
@@ -1770,7 +1753,6 @@
                     data = data + "  individual_spell_level_costs: " + document.getElementById("Individual Spell Level Costs").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     data = data + "  scaling_spell_potency: " + document.getElementById("Scaling Spell Potency").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     data = data + "  accessory_augments: " + document.getElementById("Accessory Augments").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
-                    data = data + "  augment_abilities_from_pool: " + document.getElementById("Augment Abilities from Pool").value.toLowerCase().replace(/ /g, "_").replace("yes", "true").replace("no", "false") + "\r\n";
                     
                     const filename = "settings.yaml";
                     const type = "text/plain";
