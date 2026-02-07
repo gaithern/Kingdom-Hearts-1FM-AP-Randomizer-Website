@@ -1,0 +1,187 @@
+/* style.css (Dark Theme) */
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #e0e0e0; /* Light gray text for dark background */
+    background-color: #121212; /* Dark background */
+    margin: 0;
+    padding: 20px;
+    background: url("images/bg.png") no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Headings */
+h1, h2, h3 {
+    font-weight: 600;
+    margin-bottom: 0.5em;
+    color: #f0f0f0; /* Slightly brighter headings */
+}
+
+h1 {
+    font-size: 3em;
+    font-family: Verdana;
+}
+
+h2 {
+    font-size: 1.8em;
+}
+
+h3 {
+    font-size: 1.4em;
+}
+
+/* Paragraphs and Lists */
+p, ul, ol {
+    margin-bottom: 1em;
+}
+
+/* Container for Centering */
+.container {
+    max-width: 1600px;    /* keeps text readable */
+    margin: 0 auto;       /* centers horizontally */
+    padding: 20px;
+    text-align: left;   /* centers inline elements */
+}
+.container table {
+    margin: 0 auto;       /* centers your existing tables */
+}
+.container p, 
+.container ul, 
+.container li {
+    text-align: left;     /* keeps feature list easy to read */
+}
+
+summary {
+    font-size: 25px;
+}
+
+/* Rounded Corners */
+button, img {
+    border-radius: 5px;
+}
+
+/* Box Shadow */
+.card {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Adjust shadow for dark theme */
+    padding: 20px;
+    background-color: #1e1e1e; /* Slightly lighter dark card background */
+    border-radius: 5px;
+}
+
+/* Links */
+a {
+    color: #89cff0; /* Light blue links */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* List Styling */
+ul, ol {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* Optional: Add spacing for form elements*/
+input, textarea, select, button {
+    margin-bottom: 0.75em;
+    padding: 0.5em;
+    border: 1px solid #333; /* Darker border */
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #2a2a2a; /* Darker input background */
+    color: #e0e0e0;
+}
+
+button {
+    background-color: #FFD580; /* Light blue button */
+    color: #121212; /* Dark text on button */
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #66b3ff; /* Slightly darker blue on hover */
+}
+
+.kh-icon {
+    height: 120px;   /* force same height */
+    width: auto;     /* keep proportions */
+    vertical-align: middle;
+    margin-right: 15px;  /* space to the right of the icon */
+}
+
+.ap-icon {
+    height: 110px;   /* force same height */
+    width: auto;     /* keep proportions */
+    vertical-align: middle;
+    margin-left: 15px;   /* space to the left of the icon */
+}
+
+.header-table{
+    width:1000px;
+    table-layout:fixed;
+}
+
+.banner-links-table {
+    width: 1000px;
+    table-layout: fixed;
+    border-collapse: collapse; /* merge borders between cells */
+    border: 2px solid #ffffff; /* outer table border */
+}
+
+.banner-links-table td {
+    border: 1px solid #ffffff; /* border for each cell */
+    text-align: center;         /* center the links */
+    padding: 10px;              /* spacing inside cells */
+    background: rgba(0, 0, 0, 0.3); /* subtle background for each cell */
+    transition: background 0.3s, transform 0.2s; /* smooth hover effect */
+}
+
+.banner-links-table td a {
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Hover effect for links/cells */
+.banner-links-table td:hover {
+    transform: scale(1.05); /* slight grow effect */
+}
+
+/* Dropdown styles */
+.dropdown-content {
+    display: none; /* hidden by default */
+    position: absolute;
+    top: 100%; /* directly below the parent td */
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.95); /* mostly opaque background */
+    min-width: 160px;
+    z-index: 1;
+    border-radius: 4px;
+    padding: 4px 0;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 8px 12px;
+    text-align: left;
+    color: #ffffff;
+    border: 1px solid #ffffff; /* border around each option */
+    margin: 2px 4px; /* small spacing to separate borders */
+    border-radius: 3px;
+}
+
+.dropdown-content a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Show dropdown on hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
