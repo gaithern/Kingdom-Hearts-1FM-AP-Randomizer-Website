@@ -141,9 +141,10 @@ require("kh1_lua_library")
 
 local radius = 350.0
 
+found_coords = {}
 coords = {}
 ${coordEntries}
-function check_pos()
+function in_coord_pos()
     local world = get_world()
     local room = get_room()
     local pos = get_sora_pos()
@@ -151,14 +152,17 @@ function check_pos()
     local y = pos["Y"]
     local z = pos["Z"]
     for k,v in pairs(coords) do
-        if world == coords[k]["World"] and room == coords[k]["Room"]
-                and x > coords[k]["X"] - radius and x < coords[k]["X"] + radius
-                and y > coords[k]["Y"] - radius and y < coords[k]["Y"] + radius
-                and z > coords[k]["Z"] - radius and z < coords[k]["Z"] + radius then
-            return "Found!"
+        if not contains(found_coords, k) then
+            if world == coords[k]["World"] and room == coords[k]["Room"]
+                    and x > coords[k]["X"] - radius and x < coords[k]["X"] + radius
+                    and y > coords[k]["Y"] - radius and y < coords[k]["Y"] + radius
+                    and z > coords[k]["Z"] - radius and z < coords[k]["Z"] + radius then
+                found_coords{#found_coords] = k
+                return true
+            end
         end
     end
-    return "Not found..."
+    return false
 end
 
 function _OnInit()
@@ -171,9 +175,8 @@ end
 
 function _OnFrame()
     if canExecute then
-        if is_pressed({"Square", "L2", "L1", "R2", "R1"}, true) then
-            local status = check_pos()
-            show_prompt({[1]=""},{[1]={status, ""}},null,142)
+        if in_coord_pos() then
+            show_prompt({[1]=""},{[1]={"Found!", ""}},null,142)
         end
     end
 end
