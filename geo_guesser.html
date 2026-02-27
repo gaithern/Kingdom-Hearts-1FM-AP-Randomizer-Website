@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>KH1 GeoGuesser Lua Generator</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .coord-block {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        input { width: 100px; margin: 2px; }
+        button { margin-top: 10px; margin-right: 5px; }
+        .remove-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>KH1 GeoGuesser Lua Script Generator</h2>
+
+<div style="background:#f5f5f5; padding:15px; border:1px solid #ccc; margin-bottom:20px;">
+    <h3>HOW TO USE THIS PAGE:</h3>
+    <ol>
+        <li>
+            Install <code>gaithern/KH1-LUA-LIBRARY</code> in OpenKH.
+        </li>
+        <li>
+            To find coordinates, click <strong>"Download Show Script"</strong> at the bottom of the page, 
+            install it as a standalone mod, and press 
+            <strong>L2 + L1 + R2 + R1 + Triangle</strong> 
+            to show your current Room + World + X Y Z.
+        </li>
+        <li>
+            When you find a place you want others to find, enter those numbers in the form below.
+        </li>
+        <li>
+            When you've entered the coordinates you want to add, click 
+            <strong>"Generate & Download Find Script"</strong> and share it with your friends.  
+            Your friend should install <code>gaithern/KH1-LUA-LIBRARY</code> as well as your generated script as a standalone mod.
+        </li>
+        <li>
+            To check if they are standing close enough to one of the coordinates, press 
+            <strong>L2 + L1 + R2 + R1 + Square</strong>.  
+            A text box will pop up if they are within a certain threshold of one of your coordinates.
+        </li>
+    </ol>
+</div>
+
+<div id="coords-container"></div>
+
+<button onclick="addCoord()">Add Coordinate</button>
+<br><br>
+
+<button onclick="generateFindScript()">Generate & Download Find Script</button>
+<button onclick="downloadShowScript()">Download Show Script</button>
+
+<script>
+let maxCoords = 10;
+
+function getCoordCount() {
+    return document.querySelectorAll(".coord-block").length;
+}
+
+function addCoord() {
+    if (getCoordCount() >= maxCoords) {
+        alert("Maximum of 10 coordinates allowed.");
+        return;
+    }
+
+    const container = document.getElementById("coords-container");
+    const index = getCoordCount() + 1;
+
+    const div = document.createElement("div");
+    div.className = "coord-block";
+
+    div.innerHTML = `
+        <button class="remove-btn" onclick="removeCoord(this)">Remove</button>
+        <strong>Coordinate ${index}</strong><br>
+        World: <input type="number" required>
+        Room: <input type="number" required><br>
+        X: <input type="number" step="any" required>
+        Y: <input type="number" step="any" required>
+        Z: <input type="number" step="any" required>
+    `;
+
+    container.appendChild(div);
+}
+
+function removeCoord(button) {
+    button.parentElement.remove();
+    renumberCoords();
+}
+
+function renumberCoords() {
+    const blocks = document.querySelectorAll(".coord-block");
+    blocks.forEach((block, index) => {
+        block.querySelector("strong").innerText = `Coordinate ${index + 1}`;
+    });
+}
+
+function generateFindScript() {
+
+    const blocks = document.querySelectorAll(".coord-block");
+
+    if (blocks.length === 0) {
+        alert("Add at least one coordinate.");
+        return;
+    }
+
+    let coordEntries = "";
+
+    for (let i = 0; i < blocks.length; i++) {
+
+        const inputs = blocks[i].querySelectorAll("input");
+
+        const world = inputs[0].value;
+        const room  = inputs[1].value;
+        const x     = inputs[2].value;
+        const y     = inputs[3].value;
+        const z     = inputs[4].value;
+
+        if (!world || !room || !x || !y || !z) {
+            alert("All fields must be filled.");
+            return;
+        }
+
+        coordEntries += `coords[${i + 1}] = {["World"]=${parseInt(world)}, ["Room"]=${parseInt(room)}, ["X"]=${parseFloat(x)}, ["Y"]=${parseFloat(y)}, ["Z"]=${parseFloat(z)}}\n`;
+    }
+
+    const luaScript = `LUAGUI_NAME = "1fmGeoGuesserFind"
+LUAGUI_AUTH = "Gicu"
+LUAGUI_DESC = "Kingdom Hearts 1FM Find GeoGuesser Coords"
+
+require("kh1_lua_library")
+
+local radius = 350.0
+
+coords = {}
+${coordEntries}
+function check_pos()
+    local world = get_world()
+    local room = get_room()
+    local pos = get_sora_pos()
+    local x = pos["X"]
+    local y = pos["Y"]
+    local z = pos["Z"]
+    for k,v in pairs(coords) do
+        if world == coords[k]["World"] and room == coords[k]["Room"]
+                and x > coords[k]["X"] - radius and x < coords[k]["X"] + radius
+                and y > coords[k]["Y"] - radius and y < coords[k]["Y"] + radius
+                and z > coords[k]["Z"] - radius and z < coords[k]["Z"] + radius then
+            return "Found!"
+        end
+    end
+    return "Not found..."
+end
+
+function _OnInit()
+    if GAME_ID == 0xAF71841E and ENGINE_TYPE == "BACKEND" then
+        require("VersionCheck")
+    else
+        ConsolePrint("KH1 not detected, not running script")
+    end
+end
+
+function _OnFrame()
+    if canExecute then
+        if is_pressed({"Square", "L2", "L1", "R2", "R1"}, true) then
+            local status = check_pos()
+            show_prompt({[1]=""},{[1]={status, ""}},null,142)
+        end
+    end
+end
+`;
+
+    downloadFile(luaScript, "1fmGeoGuesserFind.lua");
+}
+
+function downloadShowScript() {
+
+    const luaScript = `LUAGUI_NAME = "1fmGeoGuesserShow"
+LUAGUI_AUTH = "Gicu"
+LUAGUI_DESC = "Kingdom Hearts 1FM Show GeoGuesser Coords"
+
+require("kh1_lua_library")
+
+function _OnInit()
+    if GAME_ID == 0xAF71841E and ENGINE_TYPE == "BACKEND" then
+        require("VersionCheck")
+    else
+        ConsolePrint("KH1 not detected, not running script")
+    end
+end
+
+function _OnFrame()
+    if canExecute then
+        if is_pressed({"Triangle", "L2", "L1", "R2", "R1"}, true) then
+            local world = tostring(get_world())
+            local room = tostring(get_room())
+            local pos = get_sora_pos()
+            local x = string.format("%.2f", pos["X"])
+            local y = string.format("%.2f", pos["Y"])
+            local z = string.format("%.2f", pos["Z"])
+            local line1 = "World: " .. world .. " Room: " .. room
+            local line2 = "X: " .. x .. " Y: " .. y .. " Z: " .. z
+            show_prompt({[1]=""},{[1]={line1, line2}},null,142)
+        end
+    end
+end
+`;
+
+    downloadFile(luaScript, "1fmGeoGuesserShow.lua");
+}
+
+function downloadFile(content, filename) {
+    const blob = new Blob([content], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+}
+
+// Add one coordinate by default
+addCoord();
+</script>
+
+</body>
+</html>
