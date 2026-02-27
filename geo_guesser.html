@@ -45,8 +45,6 @@
             Your friend should install <code>gaithern/KH1-LUA-LIBRARY</code> as well as your generated script as a standalone mod.
         </li>
         <li>
-            To check if they are standing close enough to one of the coordinates, press 
-            <strong>L2 + L1 + R2 + R1 + Square</strong>.  
             A text box will pop up if they are within a certain threshold of one of your coordinates.
         </li>
     </ol>
@@ -157,7 +155,7 @@ function in_coord_pos()
                     and x > coords[k]["X"] - radius and x < coords[k]["X"] + radius
                     and y > coords[k]["Y"] - radius and y < coords[k]["Y"] + radius
                     and z > coords[k]["Z"] - radius and z < coords[k]["Z"] + radius then
-                found_coords{#found_coords] = k
+                found_coords[#found_coords + 1] = k
                 return true
             end
         end
