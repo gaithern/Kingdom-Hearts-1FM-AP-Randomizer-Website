@@ -1,31 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>KH1 GeoGuesser Lua Generator</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        .coord-block {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        input { width: 100px; margin: 2px; }
-        button { margin-top: 10px; margin-right: 5px; }
-        .remove-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-    </style>
-</head>
 <body>
 
 <h2>KH1 GeoGuesser Lua Script Generator</h2>
 
+<div style="background:#eefaff; padding:15px; border:1px solid #b3d7ff; margin-bottom:20px;">
+    <strong>Script Personalization:</strong><br>
+    Creator Name: <input type="text" id="creator-name" placeholder="e.g. Gicu" style="width: 200px;">
+</div>
+
 <div style="background:#f5f5f5; padding:15px; border:1px solid #ccc; margin-bottom:20px;">
-    <h3>HOW TO USE HIDE COORDINATES:</h3>
+    <h3>HOW TO HIDE COORDINATES:</h3>
     <ol>
         <li>Install <code>gaithern/KH1-LUA-LIBRARY</code> in OpenKH.</li>
         <li>Install <code>gaithern/KH1-GEOGUESSER</code> in OpenKH.</li>
@@ -33,16 +16,15 @@
         <li>Enter the coordinates for the locations you want players to find in the form below.</li>
         <li>Click <strong>"Generate & Download Find Script"</strong> and share the file with your friends.</li>
     </ol>
-</div>
-
-<div style="background:#f5f5f5; padding:15px; border:1px solid #ccc; margin-bottom:20px;">
-    <h3>HOW TO USE FIND COORDINATES:</h3>
+    div style="background:#f5f5f5; padding:15px; border:1px solid #ccc; margin-bottom:20px;">
+    <h3>HOW TO FIND COORDINATES:</h3>
     <ol>
         <li>Install <code>gaithern/KH1-LUA-LIBRARY</code> in OpenKH.</li>
         <li>Install <code>gaithern/KH1-GEOGUESSER</code> in OpenKH.</li>
         <li>Install the script provided by the person who set the coordinates.</li>
         <li>A text box will pop up and a sound will play when they are within range of your coordinates.</li>
     </ol>
+</div>
 </div>
 
 <div id="coords-container"></div>
@@ -98,6 +80,11 @@ function renumberCoords() {
 
 function generateFindScript() {
     const blocks = document.querySelectorAll(".coord-block");
+    const creatorInput = document.getElementById("creator-name").value.trim();
+    
+    // Logic for Dynamic LUAGUI_NAME
+    const creatorName = creatorInput || "Anonymous";
+    const guiName = `GeoGuesser - ${creatorName}`;
 
     if (blocks.length === 0) {
         alert("Add at least one coordinate.");
@@ -122,8 +109,9 @@ function generateFindScript() {
         coordEntries += `coords[${i + 1}] = {["World"]=${parseInt(world)}, ["Room"]=${parseInt(room)}, ["X"]=${parseFloat(x)}, ["Y"]=${parseFloat(y)}, ["Z"]=${parseFloat(z)}}\n`;
     }
 
-    const luaScript = `LUAGUI_NAME = "1fmGeoGuesserFind"
-LUAGUI_AUTH = "Gicu"
+    // Template updated to use the dynamic guiName and creatorName
+    const luaScript = `LUAGUI_NAME = "${guiName}"
+LUAGUI_AUTH = "${creatorName}"
 LUAGUI_DESC = "Kingdom Hearts 1FM Find GeoGuesser Coords"
 
 require("kh1_lua_library")
@@ -154,19 +142,13 @@ function in_coord_pos()
     return false
 end
 
-function _OnInit()
-    if GAME_ID == 0xAF71841E and ENGINE_TYPE == "BACKEND" then
-        require("VersionCheck")
-    else
-        ConsolePrint("KH1 not detected, not running script")
-    end
-end
-
 function _OnFrame()
     if canExecute then
         if in_coord_pos() then
             show_prompt({[1]=""},{[1]={"Found!", nil}},nil,142)
-            audio.play_beep()
+            if audio then
+                audio.play_wav()
+            end
         end
     end
 end
@@ -183,9 +165,6 @@ function downloadFile(content, filename) {
     link.click();
 }
 
-// Initialize with one block
 addCoord();
 </script>
-
 </body>
-</html>
