@@ -129,7 +129,7 @@ LUAGUI_DESC = "Kingdom Hearts 1FM Find GeoGuesser Coords"
 require("kh1_lua_library")
 local audio = require("PlaySound")
 
-local radius = 150.0
+local radius = 100.0
 found_coords = {}
 coords = {}
 ${coordEntries}
@@ -165,12 +165,8 @@ end
 function _OnFrame()
     if canExecute then
         if in_coord_pos() then
-            -- Display notification
-            show_prompt({[1]=""},{[1]={"Found!", "Location marked."}},nil,142)
-            
-            -- Play the sound effect (Assumes victory.wav is in your scripts folder)
-            local soundFile = SCRIPT_PATH:match("(.*)[\\\\/]") .. "/victory.wav"
-            audio.play_wav(soundFile)
+            show_prompt({[1]=""},{[1]={"Found!", nil}},nil,142)
+            audio.play_beep()
         end
     end
 end
