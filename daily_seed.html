@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Seed</title>
+    <link rel="icon" type="image/x-icon" href="./images/icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+    <body>
+        <div class="container">
+            <!-- Make dark mode -->
+            <meta name    = "color-scheme" content = "light dark"/>
+
+            <div id="header-container"></div>
+
+            <script>
+                fetch('header.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('header-container').innerHTML = html;
+                        document.getElementById('page-subtitle').textContent = 'Daily Seed';
+                        document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+                    });
+            </script>
+            <div class="page-intro">
+                <p>Log in with Discord to fetch today's daily seed. Everyone gets the same seed, but in their own room so runs can be timed independently.</p>
+                <p>Once you finish, come back and click "Check Completion" to record your time on the leaderboard.</p>
+            </div>
+
+            <div class="card daily-seed-card">
+                <div id="auth-section" class="auth-section"></div>
+
+                <div id="action-section" class="action-row" style="display:none;">
+                    <button id="fetch-daily-seed-button">Fetch Daily Seed</button>
+                    <button id="check-completion-button" class="secondary">Check Completion</button>
+                </div>
+                <div id="daily-seed-result" class="result-box"></div>
+            </div>
+
+            <div class="card leaderboard-card">
+                <div class="leaderboard-header">
+                    <h3>Leaderboard</h3>
+                    <button id="refresh-leaderboard-button" class="ghost-button">Refresh</button>
+                </div>
+                <div id="leaderboard-result"></div>
+            </div>
+
+            <script src="config.js"></script>
+            <script>
+                const flaskBase = FLASK_BASE_URL;
+                const tokenStorageKey = 'kh1_daily_seed_token';
+
+                const authSection = document.getElementById('auth-section');
+                const actionSection = document.getElementById('action-section');
+                const dailySeedResult = document.getElementById('daily-seed-result');
+                const leaderboardResult = document.getElementById('leaderboard-result');
+
+                function decodeTokenPayload(token) {
+                    try {
+                        const payloadB64 = token.split('.')[0];
+                        const padded = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
+                        return JSON.parse(atob(padded));
+                    } catch (e) {
+                        return null;
+                    }
+                }
+
+                function getStoredToken() {
+                    const token = localStorage.getItem(tokenStorageKey);
+                    if (!token) return null;
+                    const payload = decodeTokenPayload(token);
+                    if (!payload || (payload.exp && payload.exp * 1000 < Date.now())) {
+                        localStorage.removeItem(tokenStorageKey);
+                        return null;
+                    }
+                    return token;
+                }
+
+                function setResultMessage(el, message, type = 'info') {
+                    el.innerHTML = message;
+                    el.classList.remove('success', 'error');
+                    if (type === 'success' || type === 'error') {
+                        el.classList.add(type);
+                    }
+                }
+
+                function renderAuthSection() {
+                    const token = getStoredToken();
+                    if (!token) {
+                        const returnTo = encodeURIComponent(window.location.origin + window.location.pathname);
+                        authSection.innerHTML = `<a class="discord-login" href="${flaskBase}/oauth/login?return_to=${returnTo}">Login with Discord</a>`;
+                        actionSection.style.display = 'none';
+                        return;
+                    }
+
+                    const payload = decodeTokenPayload(token);
+                    const name = (payload && payload.discord_name) || 'Discord user';
+                    authSection.innerHTML = `
+                        <span class="auth-status"><span class="status-dot"></span>Logged in as <strong>${escapeHtml(name)}</strong></span>
+                        <a href="#" id="logout-link">Logout</a>`;
+                    document.getElementById('logout-link').addEventListener('click', (e) => {
+                        e.preventDefault();
+                        localStorage.removeItem(tokenStorageKey);
+                        setResultMessage(dailySeedResult, '');
+                        renderAuthSection();
+                    });
+                    actionSection.style.display = 'flex';
+                }
+
+                // Pick up the token handed back from the OAuth callback redirect.
+                (function captureTokenFromHash() {
+                    const match = window.location.hash.match(/token=([^&]+)/);
+                    if (match) {
+                        localStorage.setItem(tokenStorageKey, decodeURIComponent(match[1]));
+                        history.replaceState(null, '', window.location.pathname + window.location.search);
+                    }
+                })();
+
+                renderAuthSection();
+
+                async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+                    try {
+                        return await fetch(url, { ...options, signal: controller.signal });
+                    } finally {
+                        clearTimeout(timeoutId);
+                    }
+                }
+
+                function describeFetchFailure(error) {
+                    if (error.name === 'AbortError') {
+                        return 'The request timed out. The server may be slow to respond - please try again in a moment.';
+                    }
+                    return 'Could not reach the server. Please check your connection and try again.';
+                }
+
+                async function fetchDailySeed() {
+                    const token = getStoredToken();
+                    if (!token) {
+                        setResultMessage(dailySeedResult, 'Please login with Discord first.', 'error');
+                        return;
+                    }
+
+                    setResultMessage(dailySeedResult, 'Fetching daily seed...', 'info');
+                    try {
+                        const response = await fetchWithTimeout(`${flaskBase}/daily_seed`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            setResultMessage(dailySeedResult, `Error: ${response.status} ${escapeHtml(errorText)}`, 'error');
+                            return;
+                        }
+
+                        const roomLink = response.headers.get('X-Room-Link') || 'No room link found.';
+                        const contentType = response.headers.get('Content-Type') || '';
+
+                        if (contentType.includes('application/zip') || contentType.includes('application/octet-stream')) {
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'mod.zip';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                            window.URL.revokeObjectURL(url);
+                            setResultMessage(dailySeedResult, `Daily seed downloaded.<br>Room link: <a href="${roomLink}">${roomLink}</a>`, 'success');
+                        } else {
+                            const responseText = await response.text();
+                            setResultMessage(dailySeedResult, `Response: ${escapeHtml(responseText)}`, 'info');
+                        }
+                    } catch (error) {
+                        setResultMessage(dailySeedResult, describeFetchFailure(error), 'error');
+                    }
+                }
+
+                async function checkCompletion() {
+                    const token = getStoredToken();
+                    if (!token) {
+                        setResultMessage(dailySeedResult, 'Please login with Discord first.', 'error');
+                        return;
+                    }
+
+                    setResultMessage(dailySeedResult, 'Checking completion...', 'info');
+                    try {
+                        const response = await fetchWithTimeout(`${flaskBase}/daily_seed_complete`, {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await response.json();
+                        setResultMessage(dailySeedResult, escapeHtml(data.message || data.error || 'Unknown response.'), data.message ? 'success' : 'error');
+                    } catch (error) {
+                        setResultMessage(dailySeedResult, describeFetchFailure(error), 'error');
+                    }
+                }
+
+                function escapeHtml(value) {
+                    return String(value).replace(/[&<>"']/g, (c) => ({
+                        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+                    }[c]));
+                }
+
+                async function refreshLeaderboard() {
+                    leaderboardResult.textContent = 'Loading leaderboard...';
+                    try {
+                        const response = await fetchWithTimeout(`${flaskBase}/daily_leaderboard`, { method: 'POST' });
+                        const data = await response.json();
+
+                        if (data.error) {
+                            leaderboardResult.textContent = data.error;
+                            return;
+                        }
+
+                        const leaderboard = data.leaderboard || [];
+                        if (leaderboard.length === 0) {
+                            leaderboardResult.textContent = 'No completed runs yet today.';
+                            return;
+                        }
+
+                        const rows = leaderboard.map(entry => `
+                            <tr>
+                                <td><span class="rank-badge rank-${entry.rank}">${escapeHtml(entry.rank)}</span></td>
+                                <td>${escapeHtml(entry.discord_name)}</td>
+                                <td>${escapeHtml(entry.run_time === null ? 'null' : entry.run_time)}</td>
+                            </tr>`).join('');
+                        leaderboardResult.innerHTML = `
+                            <table class="location-table">
+                                <thead><tr><th>#</th><th>Player</th><th>Time</th></tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>`;
+                    } catch (error) {
+                        leaderboardResult.textContent = describeFetchFailure(error);
+                    }
+                }
+
+                document.getElementById('fetch-daily-seed-button').addEventListener('click', fetchDailySeed);
+                document.getElementById('check-completion-button').addEventListener('click', checkCompletion);
+                document.getElementById('refresh-leaderboard-button').addEventListener('click', refreshLeaderboard);
+            </script>
+        </div>
+    </body>
+</html>
