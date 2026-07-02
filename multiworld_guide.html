@@ -9,51 +9,71 @@
         <div class="container">
             <!-- Make dark mode -->
             <meta name    = "color-scheme" content = "light dark"/>
-            
             <div id="header-container"></div>
-            
-            <p><br><br>
-                <h2>Generating a multiworld game</h2>
+            <h2>Generating a multiworld game</h2>
+            <ol class="guide-steps">
                 <li><a href="https://archipelago.gg/tutorial/">Install Archipelago</a> if you haven't already done so</li>
-                <li>Gather all players settings files into your "/Players/" folder</li>
-                <p><img src="./images/yamls_gathered.png" border="1"></p>
-                <li>Run "ArchipelagoGenerate.exe"</li>
-                <p><img src="./images/run_generate.png" border="1"></p>
-                <li>After a short wait, you should see a new file in your "output" folder</li>
-                <p><img src="./images/output_file.png" border="1"></p>
-                <li>Navigate to <a href="https://archipelago.gg/uploads">https://archipelago.gg/uploads/</a> and upload the file in your output folder</li>
-                <p><img src="./images/host_game_upload.png" border="1"></p>
-                <li>You should be redirected to Seed Info page.  Click "Create New Room"</li>
-                <p><img src="./images/create_new_room.png" border="1"></p>
-                <li>You should be redirected to a new room page.  This will contain a link to download the patch file for the KH1 players, all the information they need to connect, and all the files/info for other players</li>
-                <p><img src="./images/new_room.png" border="1"></p>
-                
-                <h2>Connecting to the multiworld server</h2>
-                <li>KH1 players should begin by downloading their patch file.  This is either provided by their host, or they may click the "Download Patch File..." link associated with their slot in their game.</li>
-                <li>Using that downloaded patch file, generate your mod for OpenKH using the same instructions as the <a href="generating_the_mod.html">"Generating the mod"</a> step in the <a href="setup_guide.html">Setup Guide</a></li>
-                <li>Install your mod using the same instructions as the <a href="install_the_mod.html">"Installing the mod"</a> step in the <a href="setup_guide.html">Setup Guide</a></li>
-                <li>Open your Archipelago Launcher, which can be found in your start menu or by navigating back to your Archipelago installation folder</li>
-                <p><img src="./images/archipelago_launcher.png" border="1"></p>
-                <li>In your Archipelago Launcher, search KH1.  Click "Open".</li>
-                <p><img src="./images/search_kh1.png" border="1"></p>
-                <li>At the top of your client window, type in the server/port associated with your hosted game and click "Connect"</li>
-                <p><img src="./images/type_in_info.png" border="1"></p>
-                <li>You'll be prompted to enter the slot name associated with your slot.  In our example, its "Player2".  Type this in the bottom and press enter.</li>
-                <p><img src="./images/type_slot_name.png" border="1"></p>
-                <li>You should be greeted with the following messages.  You should now be able to open your modded KH1 game via OpenKH and play!</li>
-                <p><img src="./images/connected.png" border="1"></p>
-                
-                <h3>Having trouble getting set up?  Feel free to join the <a href="discord_links.html">KH1 AP Discord</a> and reach out for help.</h3>
-            </p>
+                <li>Download the latest <a id="apworld-download-link" href="#">kh1.apworld</a></li>
+                <li>Navigate to your Archipelago installation folder, typically found at "C:\ProgramData\Archipelago"
+                    <img src="./images/archipelago_folder.png">
+                </li>
+                <li>Open the "custom_worlds" folder
+                    <img src="./images/custom_worlds.png">
+                </li>
+                <li>Move the kh1.apworld file you downloaded into this "custom_worlds" folder.</li>
+                <li>Next, gather all players settings files into your "/Players/" folder.
+                    <img src="./images/yamls_gathered.png">
+                </li>
+                <li>Run "ArchipelagoGenerate.exe".
+                    <img src="./images/run_generate.png">
+                </li>
+                <li>After a short wait, you should see a new file in your "output" folder.
+                    <img src="./images/output_file.png">
+                </li>
+                <li>Navigate to <a href="https://archipelago.gg/uploads">https://archipelago.gg/uploads/</a> and upload the file in your output folder.
+                    <img src="./images/host_game_upload.png">
+                </li>
+                <li>You should be redirected to Seed Info page.  Click "Create New Room".
+                    <img src="./images/create_new_room.png">
+                </li>
+                <li>You should be redirected to a new room page.  This will contain a link to download the patch file for the KH1 players, all the information they need to connect, and all the files/info for other players.
+                    <img src="./images/new_room.png">
+                </li>
+            </ol>
 
-    <script>
-        fetch('header.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header-container').innerHTML = html;
-                document.getElementById('page-subtitle').textContent = 'Multiworld Guide';
-            });
-    </script>
+            <h2>Installing your slot's mod</h2>
+            <ol class="guide-steps">
+                <li>KH1 players should begin by downloading their seed's mod zip.  This is either provided by their host, or they may click the "Download Patch File..." link associated with their slot in their game.</li>
+                <li>Using that downloaded patch file, install your mod in OpenKH using the same instructions as the <a href="installing_the_mod">"Installing the mod"</a> step in the <a href="setup_guide">Setup Guide</a>.</li>
+            </ol>
+
+            <h2>Connecting to the multiworld server</h2>
+            <ol class="guide-steps">
+                <li>Once the game has started, you can connect to the multiworld.</li>
+                <li>You can do this by opening the connection window with F4.
+                    <img src="./images/connection_window.png">
+                </li>
+                <li>Type in your host, slot name, and password if applicable.</li>
+                <li>Then, click connect.</li>
+                <li>If connection was successful, you should see a prompt comfirming your connection state.
+                    <img src="./images/connected2.png">
+                </li>
+            </ol>
+
+            <h3>Having trouble getting set up?  Feel free to join the <a href="discord_links">KH1 AP Discord</a> and reach out for help.</h3>
+            <script>
+                fetch('header.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('header-container').innerHTML = html;
+                        document.getElementById('page-subtitle').textContent = 'Multiworld Guide';
+                        document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+                    });
+            </script>
+            <script src="config.js"></script>
+            <script>
+                document.getElementById('apworld-download-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+            </script>
         </div>
     </body>
 </html>

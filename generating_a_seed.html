@@ -12,29 +12,30 @@
             
             <div id="header-container"></div>
         
-        <p>
-            <li>Navigate to the <a href="generate_a_seed.html">seed generation page</a></li>
-            <li>Expand the categories found there to adjust your desired settings.</li>
-            <li>When you have adjusted the settings to your liking, click "Generate Settings File".</li>
-            <p><img src="./images/generate_settings_file_button.png" border="1"></p>
-            <li>This will prompt you to save your settings file.  This file is what is used to generate seeds with those settings.</li>
-            <li>At the bottom of the page, upload your settings file and click "Generate Seed"</li>
-            <p><img src="./images/upload_and_generate.png" border="1"></p>
-            <li>This will prompt you to download your patch, which is unique to that seed and used in the next step, <a href="generating_the_mod.html">Generating the mod zip</a>
-            <li>You'll also see a seed link appear.  You can view your spoiler log by clicking on the link.
-            <li>If you plan on playing with client/server, you can use this link to host a server on the Archipelago website to connect to in order to use remote items.</br>
-            <p><img src="./images/successful_generation.png" border="1"></p>
-        </p>
+        <ol class="guide-steps">
+            <li>Navigate to the <a href="generate_a_seed">seed generation page</a></li>
+            <li>Click through the tabs and adjust your desired settings. Your choices are saved automatically as you go, so you won't lose them if you leave and come back later.</li>
+            <li>When you're happy with your settings, click the "Finish" tab.</li>
+            <li>Click "Generate Seed" to generate a seed using your chosen settings.</li>
+            <li>If you'd like to save your settings to a file to keep or share, use "Save Settings" instead. You can later restore a saved settings file using the file picker next to it.</li>
+            <li>Generating will open a new tab and prompt you to download your seed mod, which will be installed as a standalone mod in OpenKH.</li>
+            <li>You'll also see a seed link appear in a new tab.  You can view your spoiler log there if desired.</li>
+            <li>If you plan on playing with client/server, you can use the same link to host a server on the Archipelago website to connect to in order to use remote items.
+                <img src="./images/successful_generation.png">
+            </li>
+        </ol>
         
-        <a href="generating_the_mod.html">Next Step: Generating the Mod Zip</a>
+        <a href="installing_the_mod">Next Step: Installing the Mod</a>
         
-        <script>
-            fetch('header.html')
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('header-container').innerHTML = html;
-                    document.getElementById('page-subtitle').textContent = 'Generating a seed';
-                });
-        </script>
+<script>
+    fetch('header.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('header-container').innerHTML = html;
+            document.getElementById('page-subtitle').textContent = 'Generating a seed';
+            document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+        });
+</script>
+<script src="config.js"></script>
     </div> </body>
 </html>
