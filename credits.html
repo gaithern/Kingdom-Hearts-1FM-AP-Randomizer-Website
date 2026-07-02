@@ -10,8 +10,19 @@
             <!-- Make dark mode -->
             <meta name    = "color-scheme" content = "light dark"/>
             
-<div id="header-container"></div>
-        <p>
+            <div id="header-container"></div>
+            
+            <script>
+                fetch('header.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('header-container').innerHTML = html;
+                        document.getElementById('page-subtitle').textContent = 'Credits';
+                        document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+                    });
+            </script>
+            <script src="config.js"></script>
+        <ul>
         <li>denhonator and deathofall84 for the original randomizer</li>
         <li>TopazTK for the show prompt message</li>
         <li>Krujo for show prompt's AP implementation</li>
@@ -21,16 +32,8 @@
         <li>KSX for many features including AP cost rando</li>
         <li>Omnises for the wonderful location guide here on this site</li>
         <li>Televo for their Kingdom Hearts Re:Collection assets</li>
-        </p>
+        </ul>
         
         
-    <script>
-        fetch('header.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header-container').innerHTML = html;
-                document.getElementById('page-subtitle').textContent = 'Credits';
-            });
-    </script>
     </div> </body>
 </html>

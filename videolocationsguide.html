@@ -13,15 +13,16 @@
             <div id="header-container"></div>
                 <br><br><br><br>
                 <iframe style="margin:auto; display:block;" width="560" height="315" src="https://www.youtube.com/embed/ygWk6rXfn6c?si=cB3e5r_KaD5DbY7y" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-    <script>
-        fetch('header.html')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('header-container').innerHTML = html;
-                document.getElementById('page-subtitle').textContent = 'Video Locations Guide';
-            });
-    </script>
-        </div>
+<script>
+    fetch('header.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('header-container').innerHTML = html;
+            document.getElementById('page-subtitle').textContent = 'Video Locations Guide';
+            document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+        });
+</script>
+<script src="config.js"></script>
+</div>
     </body>
 </html>
