@@ -1,25 +1,13 @@
-# Kingdom Hearts 1FM AP Randomizer Website
+# Kingdom Hearts 1FM AP Randomizer Website (Dev)
 
-Source for [kh1fmrando.com](https://kh1fmrando.com), the site for the Kingdom Hearts: Final Mix Archipelago Randomizer — a branch of the original KH1 randomizer that adds full Archipelago multiworld support, fully randomizable items (worlds, spells, trinities, summons, stat ups), GUI-based seed/mod generation with OpenKH integration, and a number of other features and stability fixes.
+Staging site for [kh1fmrando.com](https://kh1fmrando.com), served at [dev.kh1fmrando.com](https://dev.kh1fmrando.com) via GitHub Pages. Used to try out content/layout changes before they go live on the main site.
 
-Plain static HTML/CSS, no build step. `header.html` is fetched and injected client-side on every page to keep navigation and page titles in one place.
+This repo was split out from a `dev/` subfolder of the [main site repo](https://github.com/gaithern/Kingdom-Hearts-1FM-AP-Randomizer-Website) so it could be served on its own subdomain — GitHub Pages only supports one custom domain per repo, so the dev content needed a repo of its own. History was preserved during the split.
 
 ## Structure
 
-- World/topic pages (`agrabah.html`, `traverse_town.html`, etc.) — guides for each location
-- `generate_a_seed.html` / `generating_a_seed.html` — seed generation instructions
-- `setup_guide.html`, `software_setup.html`, `installing_the_mod.html`, `generating_the_mod.html` — getting started guides
-- `locations_guide.html`, `videolocationsguide.html` — check location references
-- `multiworld_guide.html` — Archipelago multiworld instructions
-- `tracker/` — location/item tracker
-- `header.html` — shared header/nav, loaded by every page via `fetch()`
-- `style.css` — shared styling
-- `images/` — site and guide assets
+Same plain static HTML/CSS structure as the main repo: per-world guide pages, `header.html` fetched client-side on every page for shared nav, `style.css` for styling, `images/` for assets.
 
-## Hosting
+## Workflow
 
-Served via GitHub Pages with a custom domain (`CNAME` file). Pushing to `main` deploys directly — no CI step.
-
-## Dev site
-
-Staging/in-progress changes live in a separate repo, [Kingdom-Hearts-1FM-AP-Randomizer-Website-Dev](https://github.com/gaithern/Kingdom-Hearts-1FM-AP-Randomizer-Website-Dev), served at [dev.kh1fmrando.com](https://dev.kh1fmrando.com). It used to be a `dev/` subfolder of this repo but was split out so it could get its own subdomain (GitHub Pages only supports one custom domain per repo).
+Push changes here first, verify on `dev.kh1fmrando.com`, then port the changes over to the main repo to publish on `kh1fmrando.com`.
