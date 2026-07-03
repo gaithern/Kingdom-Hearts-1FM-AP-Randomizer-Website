@@ -1,0 +1,44 @@
+name: Sync from Dev site
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main site
+        uses: actions/checkout@v4
+        with:
+          path: main-site
+
+      - name: Checkout Dev site
+        uses: actions/checkout@v4
+        with:
+          repository: gaithern/Kingdom-Hearts-1FM-AP-Randomizer-Website-Dev
+          path: dev-site
+
+      - name: Mirror Dev site onto main, preserving unique files
+        run: |
+          rsync -av --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='CNAME' \
+            --exclude='README.md' \
+            dev-site/ main-site/
+
+      - name: Commit and push if changed
+        working-directory: main-site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes from Dev site."
+          else
+            git commit -m "Sync from Dev site"
+            git push
+          fi
