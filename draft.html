@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Draft</title>
+    <link rel="icon" type="image/x-icon" href="./images/icon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+    <body>
+        <div class="container">
+            <!-- Make dark mode -->
+            <meta name    = "color-scheme" content = "light dark"/>
+
+            <div id="header-container"></div>
+
+            <script>
+                fetch('header.html')
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('header-container').innerHTML = html;
+                        document.getElementById('page-subtitle').textContent = 'Draft';
+                        document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+                    });
+            </script>
+            <div class="page-intro">
+                <p>Log in with Discord, then create or join a draft game to draft KH1 items with friends before racing. The host uploads one settings YAML to generate the seed; everyone else races that same seed in their own room, with their own drafted items delivered automatically.</p>
+            </div>
+
+            <div class="card">
+                <div id="auth-section" class="auth-section"></div>
+            </div>
+
+            <div id="lobby-section" class="card" style="display:none;">
+                <h3>Create a Draft Game</h3>
+                <div class="draft-form" id="create-form"></div>
+                <div class="action-row">
+                    <button id="create-game-button">Create Game</button>
+                </div>
+                <div id="create-result" class="result-box"></div>
+
+                <h3>Join a Draft Game</h3>
+                <div class="action-row">
+                    <input type="text" id="join-code-input" placeholder="Join Code">
+                    <button class="secondary" id="join-game-button">Join Game</button>
+                </div>
+                <div id="join-result" class="result-box"></div>
+            </div>
+
+            <div id="game-section" class="card" style="display:none;">
+                <h3>Draft Game <span id="join-code-label"></span> <button class="ghost-button" id="leave-game-button">Leave</button></h3>
+                <div id="seat-list" class="seat-list"></div>
+                <div id="status-message" class="result-box"></div>
+
+                <div id="pool-section" style="display:none;">
+                    <h3>Item Pool</h3>
+                    <div id="item-pool" class="item-pool"></div>
+                </div>
+
+                <div id="host-start-section" class="action-row" style="display:none;">
+                    <button id="start-draft-button">Start Draft</button>
+                </div>
+
+                <div id="yaml-section" style="display:none;">
+                    <h3>Host: Upload Settings</h3>
+                    <p class="seed-actions__hint">Need a YAML? Build one on the <a href="generate_a_seed">Generate a Seed</a> page's Finish tab (Save Settings), then upload it here.</p>
+                    <div class="action-row">
+                        <input type="file" id="yaml-file-input" accept=".yaml,.yml">
+                        <button id="upload-yaml-button">Upload &amp; Generate</button>
+                    </div>
+                </div>
+
+                <div id="result-section" class="result-box"></div>
+            </div>
+
+            <script src="config.js"></script>
+            <script src="discord_auth.js"></script>
+            <script>
+                const flaskBase = FLASK_BASE_URL;
+                const POLL_INTERVAL_MS = 3000;
+
+                // Icons are hotlinked from the public
+                // Televo/kingdom-hearts-recollection repo via jsDelivr rather
+                // than committed here - keeps this repo free of ~270MB of
+                // unused icons/fonts/sound/wallpapers from that asset pack.
+                const ICON_BASE = 'https://cdn.jsdelivr.net/gh/Televo/kingdom-hearts-recollection@main/';
+                function iconUrl(relativePath) {
+                    return ICON_BASE + encodeURI(relativePath);
+                }
+
+                // Exact per-item icons, checked before the category fallback below.
+                const ITEM_ICONS = {
+                    'Blue Trinity': 'Minimal/Key Items/KH1 Key Items/Blue Trinity.png',
+                    'Red Trinity': 'Minimal/Key Items/KH1 Key Items/Red Trinity.png',
+                    'Green Trinity': 'Minimal/Key Items/KH1 Key Items/Green Trinity.png',
+                    'Yellow Trinity': 'Minimal/Key Items/KH1 Key Items/Yellow Trinity.png',
+                    'White Trinity': 'Minimal/Key Items/KH1 Key Items/White Trinity.png',
+                };
+
+                // One representative icon per category. Augment, Camping,
+                // Item, Level Up, Limited Level Up, Stat Ups, and Weapons are
+                // excluded from the draft entirely (see EXCLUDED_CATEGORIES in
+                // draft_item_pool.py), so they never need an entry here.
+                const CATEGORY_ICONS = {
+                    'Abilities': 'Minimal/Config/Ability.png',
+                    'Shared Abilities': 'Minimal/Config/Ability.png',
+                    'Accessory': 'Minimal/Config/Accessory.png',
+                    'Cups': 'Minimal/Key Items/KH1 Key Items/Olympus Cups.png',
+                    'Key': 'Minimal/Config/Key Item.png',
+                    'Keyblades': 'Minimal/Config/Keyblade.png',
+                    'Magic': 'Minimal/Config/Magic.png',
+                    'Summons': 'Minimal/Config/Summon.png',
+                    'Torn Pages': 'Minimal/Key Items/Torn Pages.png',
+                    'Trinities': 'Minimal/Key Items/KH1 Key Items/Blue Trinity.png',
+                    'Worlds': 'Minimal/Config/Map.png',
+                };
+
+                function iconFor(itemName, category) {
+                    const relative = ITEM_ICONS[itemName] || CATEGORY_ICONS[category];
+                    return relative ? iconUrl(relative) : null;
+                }
+
+                const authSection = document.getElementById('auth-section');
+                const lobbySection = document.getElementById('lobby-section');
+                const gameSection = document.getElementById('game-section');
+                const createResult = document.getElementById('create-result');
+                const joinResult = document.getElementById('join-result');
+                const statusMessage = document.getElementById('status-message');
+                const resultSection = document.getElementById('result-section');
+
+                let currentJoinCode = null;
+                let pollTimer = null;
+                let categoriesData = null;
+
+                function setResultState(el, message, type = 'info') {
+                    el.innerHTML = message;
+                    el.classList.remove('success', 'error');
+                    if (type === 'success' || type === 'error') {
+                        el.classList.add(type);
+                    }
+                }
+
+                function authHeaders() {
+                    const token = getStoredDiscordToken();
+                    return token ? { 'Authorization': `Bearer ${token}` } : {};
+                }
+
+                async function apiPost(path, body) {
+                    const response = await fetch(`${flaskBase}${path}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                        body: JSON.stringify(body || {}),
+                    });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data.error || `Request failed (${response.status})`);
+                    }
+                    return data;
+                }
+
+                async function apiGet(path) {
+                    const response = await fetch(`${flaskBase}${path}`, { headers: authHeaders() });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data.error || `Request failed (${response.status})`);
+                    }
+                    return data;
+                }
+
+                function buildCreateForm() {
+                    const container = document.getElementById('create-form');
+                    container.innerHTML = `
+                        <label class="draft-form__field">
+                            <span>Draft Type</span>
+                            <select id="draft-type-select">
+                                <option value="snake">Snake</option>
+                            </select>
+                        </label>
+                        <label class="draft-form__field">
+                            <span>Max Players</span>
+                            <input type="text" id="max-players-input" value="2">
+                        </label>
+                        <label class="draft-form__field">
+                            <span>Picks per Player</span>
+                            <input type="text" id="picks-per-player-input" value="5">
+                        </label>
+                        <div class="draft-form__field">
+                            <span>Item Categories</span>
+                            <div class="category-checkboxes" id="category-checkboxes"></div>
+                        </div>`;
+
+                    const categoryContainer = document.getElementById('category-checkboxes');
+                    categoriesData.categories.forEach((category) => {
+                        const label = document.createElement('label');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = category;
+                        checkbox.className = 'category-checkbox';
+                        checkbox.checked = categoriesData.default.includes(category);
+                        label.appendChild(checkbox);
+                        const icon = CATEGORY_ICONS[category];
+                        if (icon) {
+                            const img = document.createElement('img');
+                            img.className = 'pool-icon';
+                            img.src = iconUrl(icon);
+                            img.alt = '';
+                            img.loading = 'lazy';
+                            label.appendChild(img);
+                        }
+                        label.appendChild(document.createTextNode(category));
+                        categoryContainer.appendChild(label);
+                    });
+                }
+
+                async function loadCategories() {
+                    try {
+                        categoriesData = await apiGet('/draft/item_categories');
+                        buildCreateForm();
+                    } catch (error) {
+                        setResultState(createResult, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                async function createGame() {
+                    setResultState(createResult, '', 'info');
+                    const itemCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map((el) => el.value);
+                    try {
+                        const data = await apiPost('/draft/create', {
+                            draft_type: document.getElementById('draft-type-select').value,
+                            max_players: document.getElementById('max-players-input').value,
+                            picks_per_player: document.getElementById('picks-per-player-input').value,
+                            item_categories: itemCategories,
+                        });
+                        enterGame(data.join_code);
+                    } catch (error) {
+                        setResultState(createResult, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                async function joinGame() {
+                    setResultState(joinResult, '', 'info');
+                    const joinCode = document.getElementById('join-code-input').value.trim().toUpperCase();
+                    if (!joinCode) {
+                        setResultState(joinResult, 'Enter a join code.', 'error');
+                        return;
+                    }
+                    try {
+                        await apiPost('/draft/join', { join_code: joinCode });
+                        enterGame(joinCode);
+                    } catch (error) {
+                        setResultState(joinResult, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                function enterGame(joinCode) {
+                    currentJoinCode = joinCode;
+                    history.replaceState(null, '', `${window.location.pathname}?join_code=${joinCode}`);
+                    lobbySection.style.display = 'none';
+                    gameSection.style.display = 'block';
+                    document.getElementById('join-code-label').textContent = joinCode;
+                    stopPolling();
+                    pollState();
+                    pollTimer = setInterval(pollState, POLL_INTERVAL_MS);
+                }
+
+                function leaveGame() {
+                    stopPolling();
+                    currentJoinCode = null;
+                    history.replaceState(null, '', window.location.pathname);
+                    gameSection.style.display = 'none';
+                    lobbySection.style.display = 'block';
+                }
+
+                function stopPolling() {
+                    if (pollTimer) {
+                        clearInterval(pollTimer);
+                        pollTimer = null;
+                    }
+                }
+
+                async function pollState() {
+                    if (!currentJoinCode) return;
+                    try {
+                        const state = await apiGet(`/draft/${currentJoinCode}/state`);
+                        renderGameState(state);
+                    } catch (error) {
+                        setResultState(statusMessage, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                const STATUS_LABELS = {
+                    lobby: 'Waiting for players to join...',
+                    drafting: 'Draft in progress.',
+                    awaiting_yaml: 'Waiting on the host to upload settings.',
+                    generating: 'Generating your seed...',
+                    sending_items: 'Delivering drafted items to each room...',
+                    complete: 'Done! Your room is ready.',
+                    error: 'Something went wrong.',
+                };
+
+                function renderItemPool(pool, yourTurn) {
+                    const poolContainer = document.getElementById('item-pool');
+                    const counts = new Map();
+                    pool.forEach(({ item_name, category }) => {
+                        const existing = counts.get(item_name);
+                        if (existing) {
+                            existing.count += 1;
+                        } else {
+                            counts.set(item_name, { category, count: 1 });
+                        }
+                    });
+                    const entries = Array.from(counts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+                    const rows = entries.map(([name, { category, count }]) => {
+                        const icon = iconFor(name, category);
+                        const iconImg = icon ? `<img class="pool-icon" src="${icon}" alt="" loading="lazy">` : '';
+                        return `
+                        <tr>
+                            <td>${iconImg}${escapeHtml(name)}${count > 1 ? ` <span class="pool-count">&times;${count}</span>` : ''}</td>
+                            <td><button type="button" class="secondary pick-button" data-item="${escapeHtml(name)}" ${yourTurn ? '' : 'disabled'}>Draft</button></td>
+                        </tr>`;
+                    }).join('');
+
+                    poolContainer.innerHTML = `
+                        <table class="location-table">
+                            <thead><tr><th>Item</th><th></th></tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>`;
+
+                    poolContainer.querySelectorAll('.pick-button').forEach((button) => {
+                        button.addEventListener('click', () => pickItem(button.dataset.item));
+                    });
+                }
+
+                function renderGameState(state) {
+                    document.getElementById('seat-list').innerHTML = state.seats.map((seat) => {
+                        const onClock = seat.seat_number === state.on_the_clock_seat;
+                        return `<span class="seat-chip${onClock ? ' on-the-clock' : ''}">Seat ${seat.seat_number}: ${escapeHtml(seat.discord_name)}${onClock ? ' (on the clock)' : ''}</span>`;
+                    }).join('');
+
+                    setResultState(statusMessage, STATUS_LABELS[state.status] || state.status, state.status === 'error' ? 'error' : 'info');
+
+                    document.getElementById('host-start-section').style.display =
+                        (state.status === 'lobby' && state.is_host) ? 'flex' : 'none';
+
+                    const poolSection = document.getElementById('pool-section');
+                    if (state.status === 'drafting') {
+                        poolSection.style.display = 'block';
+                        renderItemPool(state.pool, state.your_turn);
+                    } else {
+                        poolSection.style.display = 'none';
+                    }
+
+                    document.getElementById('yaml-section').style.display =
+                        (state.status === 'awaiting_yaml' && state.is_host) ? 'block' : 'none';
+
+                    if (state.status === 'complete') {
+                        setResultState(resultSection, `Your room is ready: <a href="${state.room_link}">${state.room_link}</a>`, 'success');
+                        stopPolling();
+                    } else if (state.status === 'error') {
+                        setResultState(resultSection, escapeHtml(state.error_message || 'Unknown error.'), 'error');
+                        stopPolling();
+                    } else {
+                        setResultState(resultSection, '');
+                    }
+                }
+
+                async function startDraft() {
+                    try {
+                        await apiPost(`/draft/${currentJoinCode}/start`);
+                        pollState();
+                    } catch (error) {
+                        setResultState(statusMessage, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                async function pickItem(itemName) {
+                    try {
+                        await apiPost(`/draft/${currentJoinCode}/pick`, { item_name: itemName });
+                        pollState();
+                    } catch (error) {
+                        setResultState(statusMessage, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                async function uploadYaml() {
+                    const input = document.getElementById('yaml-file-input');
+                    const file = input.files[0];
+                    if (!file) {
+                        setResultState(resultSection, 'Choose a YAML file first.', 'error');
+                        return;
+                    }
+                    const token = getStoredDiscordToken();
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    try {
+                        setResultState(resultSection, 'Uploading and generating - this can take a little while...', 'info');
+                        const response = await fetch(`${flaskBase}/draft/${currentJoinCode}/upload_yaml`, {
+                            method: 'POST',
+                            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                            body: formData,
+                        });
+                        const data = await response.json().catch(() => ({}));
+                        if (!response.ok) {
+                            throw new Error(data.error || `Request failed (${response.status})`);
+                        }
+                        pollState();
+                    } catch (error) {
+                        setResultState(resultSection, escapeHtml(error.message), 'error');
+                    }
+                }
+
+                captureDiscordTokenFromHash();
+                renderDiscordAuthSection(authSection, (token) => {
+                    lobbySection.style.display = (token && !currentJoinCode) ? 'block' : 'none';
+                    if (token && !categoriesData) {
+                        loadCategories();
+                    }
+                });
+
+                document.getElementById('create-game-button').addEventListener('click', createGame);
+                document.getElementById('join-game-button').addEventListener('click', joinGame);
+                document.getElementById('leave-game-button').addEventListener('click', leaveGame);
+                document.getElementById('start-draft-button').addEventListener('click', startDraft);
+                document.getElementById('upload-yaml-button').addEventListener('click', uploadYaml);
+
+                const urlJoinCode = new URLSearchParams(window.location.search).get('join_code');
+                if (urlJoinCode && getStoredDiscordToken()) {
+                    enterGame(urlJoinCode);
+                }
+            </script>
+        </div>
+    </body>
+</html>
