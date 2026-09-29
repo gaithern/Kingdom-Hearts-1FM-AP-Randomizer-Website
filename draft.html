@@ -7,7 +7,6 @@
 </head>
     <body>
         <div class="container">
-            <!-- Make dark mode -->
             <meta name    = "color-scheme" content = "light dark"/>
 
             <div id="header-container"></div>
@@ -21,10 +20,6 @@
                         document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
                     });
             </script>
-            <div class="page-intro">
-                <p>Log in with Discord, then create or join a draft game to draft KH1 items with friends before racing. The host uploads one settings YAML to generate the seed; everyone else races that same seed in their own room, with their own drafted items delivered automatically.</p>
-            </div>
-
             <div class="card">
                 <div id="auth-section" class="auth-section"></div>
             </div>
@@ -55,17 +50,28 @@
                     <div id="item-pool" class="item-pool"></div>
                 </div>
 
-                <div id="host-start-section" class="action-row" style="display:none;">
-                    <button id="start-draft-button">Start Draft</button>
-                </div>
-
                 <div id="yaml-section" style="display:none;">
-                    <h3>Host: Upload Settings</h3>
-                    <p class="seed-actions__hint">Need a YAML? Build one on the <a href="generate_a_seed">Generate a Seed</a> page's Finish tab (Save Settings), then upload it here.</p>
+                    <h3>Host: Re-upload Settings</h3>
+                    <p class="seed-actions__hint">Upload a different YAML to re-roll the seed before the draft starts (or to retry if generation failed).</p>
                     <div class="action-row">
                         <input type="file" id="yaml-file-input" accept=".yaml,.yml">
                         <button id="upload-yaml-button">Upload &amp; Generate</button>
                     </div>
+                </div>
+
+                <div id="candidate-section" style="display:none;">
+                    <h3>Host: Choose the Draft Pool</h3>
+                    <p class="seed-actions__hint">Every draftable item in your seed is listed below. Select those you wish to draft.</p>
+                    <div class="action-row">
+                        <button type="button" class="secondary" id="select-all-candidates-button">Select All</button>
+                        <button type="button" class="secondary" id="select-none-candidates-button">Select None</button>
+                        <span id="candidate-count" class="pool-count"></span>
+                    </div>
+                    <div id="candidate-groups" class="candidate-list"></div>
+                </div>
+
+                <div id="host-start-section" class="action-row" style="display:none;">
+                    <button id="start-draft-button">Start Draft</button>
                 </div>
 
                 <div id="result-section" class="result-box"></div>
@@ -77,16 +83,11 @@
                 const flaskBase = FLASK_BASE_URL;
                 const POLL_INTERVAL_MS = 3000;
 
-                // Icons are hotlinked from the public
-                // Televo/kingdom-hearts-recollection repo via jsDelivr rather
-                // than committed here - keeps this repo free of ~270MB of
-                // unused icons/fonts/sound/wallpapers from that asset pack.
                 const ICON_BASE = 'https://cdn.jsdelivr.net/gh/Televo/kingdom-hearts-recollection@main/';
                 function iconUrl(relativePath) {
                     return ICON_BASE + encodeURI(relativePath);
                 }
 
-                // Exact per-item icons, checked before the category fallback below.
                 const ITEM_ICONS = {
                     'Blue Trinity': 'Minimal/Key Items/KH1 Key Items/Blue Trinity.png',
                     'Red Trinity': 'Minimal/Key Items/KH1 Key Items/Red Trinity.png',
@@ -95,10 +96,6 @@
                     'White Trinity': 'Minimal/Key Items/KH1 Key Items/White Trinity.png',
                 };
 
-                // One representative icon per category. Augment, Camping,
-                // Item, Level Up, Limited Level Up, Stat Ups, and Weapons are
-                // excluded from the draft entirely (see EXCLUDED_CATEGORIES in
-                // draft_item_pool.py), so they never need an entry here.
                 const CATEGORY_ICONS = {
                     'Abilities': 'Minimal/Config/Ability.png',
                     'Shared Abilities': 'Minimal/Config/Ability.png',
@@ -128,7 +125,10 @@
 
                 let currentJoinCode = null;
                 let pollTimer = null;
-                let categoriesData = null;
+                let createFormBuilt = false;
+                let candidatesKey = null;
+                let selectedCandidates = new Map();
+                let requiredPoolSize = 0;
 
                 function setResultState(el, message, type = 'info') {
                     el.innerHTML = message;
@@ -171,7 +171,7 @@
                         <label class="draft-form__field">
                             <span>Draft Type</span>
                             <select id="draft-type-select">
-                                <option value="snake">Snake</option>
+                                <option value="snake">Single Pick</option>
                                 <option value="grid">Grid</option>
                             </select>
                         </label>
@@ -187,15 +187,16 @@
                             <span>Number of Grids</span>
                             <input type="text" id="num-grids-input" value="3">
                         </label>
-                        <div class="draft-form__field">
-                            <span>Item Categories</span>
-                            <div class="category-checkboxes" id="category-checkboxes"></div>
-                        </div>`;
+                        <label class="draft-form__field draft-form__field--wide">
+                            <span>Settings YAML</span>
+                            <span class="file-picker">
+                                <input type="file" class="file-picker__input" id="create-yaml-file-input" accept=".yaml,.yml">
+                                <span class="file-picker__name" id="create-yaml-file-name">No file chosen</span>
+                                <span class="file-picker__button">Choose File</span>
+                            </span>
+                        </label>
+                        <p class="seed-actions__hint">Need a YAML? Build one on the <a href="generate_a_seed">Generate a Seed</a> page's Finish tab (Save Settings). The seed starts generating as soon as the game is created.</p>`;
 
-                    // Grid draft (https://luckypaper.co/resources/formats/grid-draft/)
-                    // is fixed to 2 players and sized by number of 3x3 grids
-                    // instead of picks-per-player, so swap those fields
-                    // in/out based on the selected draft type.
                     const draftTypeSelect = document.getElementById('draft-type-select');
                     const maxPlayersInput = document.getElementById('max-players-input');
                     const picksPerPlayerField = document.getElementById('picks-per-player-field');
@@ -212,58 +213,39 @@
                     draftTypeSelect.addEventListener('change', updateDraftTypeFields);
                     updateDraftTypeFields();
 
-                    const categoryContainer = document.getElementById('category-checkboxes');
-                    categoriesData.categories.forEach((category) => {
-                        const label = document.createElement('label');
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.value = category;
-                        checkbox.className = 'category-checkbox';
-                        checkbox.checked = categoriesData.default.includes(category);
-                        label.appendChild(checkbox);
-                        const icon = CATEGORY_ICONS[category];
-                        if (icon) {
-                            const img = document.createElement('img');
-                            img.className = 'pool-icon';
-                            img.src = iconUrl(icon);
-                            img.alt = '';
-                            img.loading = 'lazy';
-                            label.appendChild(img);
-                        }
-                        label.appendChild(document.createTextNode(category));
-                        categoryContainer.appendChild(label);
+                    const yamlFileInput = document.getElementById('create-yaml-file-input');
+                    yamlFileInput.addEventListener('change', () => {
+                        const file = yamlFileInput.files[0];
+                        document.getElementById('create-yaml-file-name').textContent = file ? file.name : 'No file chosen';
                     });
-                }
-
-                async function loadCategories() {
-                    try {
-                        categoriesData = await apiGet('/draft/item_categories');
-                        buildCreateForm();
-                    } catch (error) {
-                        setResultState(createResult, escapeHtml(error.message), 'error');
-                    }
                 }
 
                 async function createGame() {
                     setResultState(createResult, '', 'info');
-                    const itemCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map((el) => el.value);
+                    const yamlFile = document.getElementById('create-yaml-file-input').files[0];
+                    if (!yamlFile) {
+                        setResultState(createResult, 'Choose a settings YAML first.', 'error');
+                        return;
+                    }
                     const draftType = document.getElementById('draft-type-select').value;
                     const body = {
                         draft_type: draftType,
                         max_players: document.getElementById('max-players-input').value,
-                        item_categories: itemCategories,
                     };
                     if (draftType === 'grid') {
                         body.num_grids = document.getElementById('num-grids-input').value;
                     } else {
                         body.picks_per_player = document.getElementById('picks-per-player-input').value;
                     }
+                    let data;
                     try {
-                        const data = await apiPost('/draft/create', body);
-                        enterGame(data.join_code);
+                        data = await apiPost('/draft/create', body);
                     } catch (error) {
                         setResultState(createResult, escapeHtml(error.message), 'error');
+                        return;
                     }
+                    enterGame(data.join_code);
+                    await uploadYamlFile(yamlFile);
                 }
 
                 async function joinGame() {
@@ -318,10 +300,10 @@
                 }
 
                 const STATUS_LABELS = {
-                    lobby: 'Waiting for players to join...',
+                    lobby: 'Waiting for players to join and the host to upload settings...',
+                    generating: 'Generating the seed...',
+                    pool_selection: 'Seed ready - the host is choosing the item pool.',
                     drafting: 'Draft in progress.',
-                    awaiting_yaml: 'Waiting on the host to upload settings.',
-                    generating: 'Generating your seed...',
                     sending_items: 'Delivering drafted items to each room...',
                     complete: 'Done! Your room is ready.',
                     error: 'Something went wrong.',
@@ -361,8 +343,103 @@
                     });
                 }
 
-                // Row/column/diagonal cell coordinates for a 3x3 grid, matching
-                // GRID_LINES in the backend's draft_tools.py exactly.
+                function updateCandidateCount() {
+                    let selected = 0;
+                    selectedCandidates.forEach((copies) => { selected += copies; });
+                    const short = selected < requiredPoolSize;
+                    document.getElementById('candidate-count').textContent =
+                        `${selected} selected / ${requiredPoolSize} needed${short ? ` - select ${requiredPoolSize - selected} more` : ''}`;
+                    document.getElementById('start-draft-button').disabled = short;
+                }
+
+                function setCandidateChecked(checkbox, checked) {
+                    checkbox.checked = checked;
+                    if (checked) {
+                        const copiesInput = checkbox.closest('tr').querySelector('.candidate-copies');
+                        selectedCandidates.set(checkbox.value, copiesInput ? Number(copiesInput.value) : 1);
+                    } else {
+                        selectedCandidates.delete(checkbox.value);
+                    }
+                }
+
+                function candidateRow({ item_name, category, quantity }) {
+                    const row = document.createElement('tr');
+                    const id = `candidate-${item_name.replace(/[^A-Za-z0-9]/g, '-')}`;
+                    const icon = iconFor(item_name, category);
+                    row.innerHTML = `
+                        <td><input type="checkbox" class="candidate-checkbox" id="${id}" value="${escapeHtml(item_name)}"></td>
+                        <td><label for="${id}">${icon ? `<img class="pool-icon" src="${icon}" alt="" loading="lazy">` : ''}${escapeHtml(item_name)}</label></td>
+                        <td class="pool-count">${quantity > 1
+                            ? `<input type="number" class="candidate-copies" min="1" max="${quantity}" value="${quantity}" aria-label="Copies of ${escapeHtml(item_name)}"> / ${quantity}`
+                            : ''}</td>`;
+                    const checkbox = row.querySelector('.candidate-checkbox');
+                    checkbox.addEventListener('change', () => {
+                        setCandidateChecked(checkbox, checkbox.checked);
+                        updateCandidateCount();
+                    });
+                    const copiesInput = row.querySelector('.candidate-copies');
+                    if (copiesInput) {
+                        copiesInput.addEventListener('change', () => {
+                            const copies = Math.round(Number(copiesInput.value));
+                            copiesInput.value = Number.isFinite(copies) ? Math.min(Math.max(copies, 1), quantity) : 1;
+                            setCandidateChecked(checkbox, true);
+                            updateCandidateCount();
+                        });
+                    }
+                    return row;
+                }
+
+                function renderCandidates(candidates) {
+                    const key = candidates.map((c) => c.item_name).join('|');
+                    if (key === candidatesKey) {
+                        updateCandidateCount();
+                        return;
+                    }
+                    candidatesKey = key;
+                    selectedCandidates = new Map();
+
+                    const byCategory = new Map();
+                    candidates.forEach((candidate) => {
+                        if (!byCategory.has(candidate.category)) byCategory.set(candidate.category, []);
+                        byCategory.get(candidate.category).push(candidate);
+                    });
+
+                    const table = document.createElement('table');
+                    table.className = 'location-table';
+                    Array.from(byCategory.keys()).sort().forEach((category) => {
+                        const group = document.createElement('tbody');
+                        const headerRow = document.createElement('tr');
+                        headerRow.className = 'candidate-list__category';
+                        const categoryIcon = CATEGORY_ICONS[category];
+                        headerRow.innerHTML = `<th colspan="3"><div>${categoryIcon ? `<img class="pool-icon" src="${iconUrl(categoryIcon)}" alt="" loading="lazy">` : ''}${escapeHtml(category)}</div></th>`;
+                        const headerContent = headerRow.querySelector('div');
+                        [['All', true], ['None', false]].forEach(([text, checked]) => {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'ghost-button';
+                            button.textContent = text;
+                            button.addEventListener('click', () => {
+                                group.querySelectorAll('.candidate-checkbox').forEach((checkbox) => setCandidateChecked(checkbox, checked));
+                                updateCandidateCount();
+                            });
+                            headerContent.appendChild(button);
+                        });
+                        group.appendChild(headerRow);
+                        byCategory.get(category).forEach((candidate) => group.appendChild(candidateRow(candidate)));
+                        table.appendChild(group);
+                    });
+
+                    const container = document.getElementById('candidate-groups');
+                    container.innerHTML = '';
+                    container.appendChild(table);
+                    updateCandidateCount();
+                }
+
+                function setAllCandidates(checked) {
+                    document.querySelectorAll('.candidate-checkbox').forEach((checkbox) => setCandidateChecked(checkbox, checked));
+                    updateCandidateCount();
+                }
+
                 const GRID_ROW_LINES = [[[0, 0], [0, 1], [0, 2]], [[1, 0], [1, 1], [1, 2]], [[2, 0], [2, 1], [2, 2]]];
                 const GRID_COLUMN_LINES = [[[0, 0], [1, 0], [2, 0]], [[0, 1], [1, 1], [2, 1]], [[0, 2], [1, 2], [2, 2]]];
                 const GRID_DIAGONAL_LINES = [[[0, 0], [1, 1], [2, 2]], [[0, 2], [1, 1], [2, 0]]];
@@ -390,12 +467,6 @@
                         return `<div class="grid-draft__cell">${iconImg}<span>${escapeHtml(cell.item_name)}</span></div>`;
                     }
 
-                    // Built as a flat, row-major list and laid out by the
-                    // 5-column CSS grid below (diagonal corner, 3 column
-                    // buttons, diagonal corner; then for each grid row, its
-                    // row button followed by its 3 cells) - this puts each
-                    // header button directly beside the line it selects
-                    // instead of grouped in a separate control panel.
                     const boardItems = [
                         headerButtonHtml('diagonal', 0, GRID_DIAGONAL_LINES[0], '↘'),
                         headerButtonHtml('column', 0, GRID_COLUMN_LINES[0], 'Col 1'),
@@ -406,11 +477,6 @@
                     GRID_ROW_LINES.forEach((cells, rowIndex) => {
                         boardItems.push(headerButtonHtml('row', rowIndex, cells, `Row ${rowIndex + 1}`));
                         currentGrid[rowIndex].forEach((cell) => boardItems.push(cellHtml(cell)));
-                        // Explicit filler for the 5th column - each cell row
-                        // only has 4 real items (row button + 3 cells), and
-                        // without this the grid's auto-placement packs the
-                        // next row's button into that empty slot instead of
-                        // wrapping to a new visual row.
                         boardItems.push('<div class="grid-draft__filler"></div>');
                     });
 
@@ -450,8 +516,13 @@
 
                     setResultState(statusMessage, STATUS_LABELS[state.status] || state.status, state.status === 'error' ? 'error' : 'info');
 
-                    document.getElementById('host-start-section').style.display =
-                        (state.status === 'lobby' && state.is_host) ? 'flex' : 'none';
+                    const hostChoosingPool = state.status === 'pool_selection' && state.is_host;
+                    document.getElementById('host-start-section').style.display = hostChoosingPool ? 'flex' : 'none';
+                    document.getElementById('candidate-section').style.display = hostChoosingPool ? 'block' : 'none';
+                    if (hostChoosingPool) {
+                        requiredPoolSize = state.required_pool_size;
+                        renderCandidates(state.candidates);
+                    }
 
                     const poolSection = document.getElementById('pool-section');
                     if (state.status === 'drafting' && state.draft_type === 'grid') {
@@ -467,9 +538,11 @@
                     }
 
                     document.getElementById('yaml-section').style.display =
-                        (state.status === 'awaiting_yaml' && state.is_host) ? 'block' : 'none';
+                        ((state.status === 'lobby' || state.status === 'pool_selection') && state.is_host) ? 'block' : 'none';
 
-                    if (state.status === 'complete') {
+                    if (state.status === 'lobby' && state.error_message) {
+                        setResultState(resultSection, `Seed generation failed: ${escapeHtml(state.error_message)}`, 'error');
+                    } else if (state.status === 'complete') {
                         setResultState(resultSection, `Your room is ready: <a href="${state.room_link}">${state.room_link}</a>`, 'success');
                         stopPolling();
                     } else if (state.status === 'error') {
@@ -482,7 +555,11 @@
 
                 async function startDraft() {
                     try {
-                        await apiPost(`/draft/${currentJoinCode}/start`);
+                        const items = [];
+                        selectedCandidates.forEach((copies, itemName) => {
+                            for (let i = 0; i < copies; i++) items.push(itemName);
+                        });
+                        await apiPost(`/draft/${currentJoinCode}/start`, { items });
                         pollState();
                     } catch (error) {
                         setResultState(statusMessage, escapeHtml(error.message), 'error');
@@ -499,12 +576,15 @@
                 }
 
                 async function uploadYaml() {
-                    const input = document.getElementById('yaml-file-input');
-                    const file = input.files[0];
+                    const file = document.getElementById('yaml-file-input').files[0];
                     if (!file) {
                         setResultState(resultSection, 'Choose a YAML file first.', 'error');
                         return;
                     }
+                    await uploadYamlFile(file);
+                }
+
+                async function uploadYamlFile(file) {
                     const token = getStoredDiscordToken();
                     const formData = new FormData();
                     formData.append('file', file);
@@ -528,8 +608,9 @@
                 captureDiscordTokenFromHash();
                 renderDiscordAuthSection(authSection, (token) => {
                     lobbySection.style.display = (token && !currentJoinCode) ? 'block' : 'none';
-                    if (token && !categoriesData) {
-                        loadCategories();
+                    if (token && !createFormBuilt) {
+                        createFormBuilt = true;
+                        buildCreateForm();
                     }
                 });
 
@@ -538,6 +619,8 @@
                 document.getElementById('leave-game-button').addEventListener('click', leaveGame);
                 document.getElementById('start-draft-button').addEventListener('click', startDraft);
                 document.getElementById('upload-yaml-button').addEventListener('click', uploadYaml);
+                document.getElementById('select-all-candidates-button').addEventListener('click', () => setAllCandidates(true));
+                document.getElementById('select-none-candidates-button').addEventListener('click', () => setAllCandidates(false));
 
                 const urlJoinCode = new URLSearchParams(window.location.search).get('join_code');
                 if (urlJoinCode && getStoredDiscordToken()) {
