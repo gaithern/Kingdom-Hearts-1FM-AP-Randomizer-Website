@@ -8,11 +8,12 @@ server to do the same fallback.
 """
 import http.server
 import os
-import socketserver
 import sys
 
 
 class CleanUrlHandler(http.server.SimpleHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def translate_path(self, path):
         full_path = super().translate_path(path)
         if not os.path.exists(full_path):
@@ -24,7 +25,7 @@ class CleanUrlHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
-    with socketserver.TCPServer(("", port), CleanUrlHandler) as httpd:
+    with http.server.ThreadingHTTPServer(("", port), CleanUrlHandler) as httpd:
         print(f"Serving HTTP on 0.0.0.0 port {port} (clean URLs enabled) ...")
         httpd.serve_forever()
 

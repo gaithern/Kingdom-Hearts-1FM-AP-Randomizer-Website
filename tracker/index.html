@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <base href="/">
+    <title>Tracker</title>
+    <link rel="icon" type="image/x-icon" href="images/icon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tracker/tracker.css">
+</head>
+<body>
+<div class="container">
+    <meta name="color-scheme" content="light dark"/>
+
+    <div id="header-container"></div>
+
+    <script src="config.js"></script>
+    <script>
+        fetch('header.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header-container').innerHTML = html;
+                document.getElementById('page-subtitle').textContent = 'Tracker';
+                document.getElementById('nav-apworld-link').href = `${FLASK_BASE_URL}/kh1.apworld`;
+            });
+    </script>
+
+    <div id="tracker" class="tracker">
+        <div class="tracker-toolbar">
+            <input id="api-address" aria-label="API address">
+            <span class="connection-status">
+                <span id="status-light" class="status-light"></span>
+                <span id="status-message">Not connected</span>
+            </span>
+            <button id="broadcast-view-button">Broadcast view</button>
+        </div>
+
+        <div id="world-list" class="panel world-list"></div>
+        <div id="item-grid" class="panel item-grid"></div>
+
+        <details class="panel dropdown">
+            <summary>Seed</summary>
+            <table id="seed-details"></table>
+        </details>
+
+        <details class="panel dropdown">
+            <summary>Settings</summary>
+            <table id="all-settings"></table>
+        </details>
+
+        <details class="panel dropdown">
+            <summary>Debug</summary>
+            <pre id="raw-state" class="raw-state"></pre>
+        </details>
+
+        <div class="credits">
+            Icons and fonts:
+            <a href="https://televo.github.io/kingdom-hearts-recollection" target="_blank" rel="noopener">Kingdom Hearts Re:Collection</a>
+            by Televo.
+        </div>
+    </div>
+</div>
+
+<script src="tracker/tracker-config.js"></script>
+<script src="tracker/tracker-shared-state.js"></script>
+<script src="tracker/tracker-html-helpers.js"></script>
+<script src="tracker/tracker-api.js"></script>
+<script src="tracker/tracker-item-counting.js"></script>
+<script src="tracker/tracker-state.js"></script>
+<script src="tracker/tracker-worlds.js"></script>
+<script src="tracker/tracker-item-grid.js"></script>
+<script src="tracker/tracker-dropdowns.js"></script>
+<script src="tracker/tracker-broadcast.js"></script>
+<script src="tracker/tracker-main.js"></script>
+</body>
+</html>
