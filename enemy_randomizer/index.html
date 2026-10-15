@@ -249,7 +249,7 @@
                         h += '<div class="er-empty">Nothing else in the game can stand in for this '
                           + "one, so it is always left as it is.</div>";
                     } else {
-                        h += '<div class="er-tier"><div class="category-checkboxes">'
+                        h += '<div class="er-tier"><div class="er-targets">'
                           + list.map(function (x) {
                               return "<label><input type=\"checkbox\" data-target=\"" + esc(x) + "\""
                                 + (mine[x] ? " checked" : "") + "><span>" + esc(x)
